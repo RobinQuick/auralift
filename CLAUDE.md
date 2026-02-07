@@ -1,0 +1,221 @@
+# CLAUDE.md
+
+> Project-specific rules and patterns for AI assistants working on AuraLift
+
+## Project Overview
+
+**Name:** AuraLift
+**Description:** AI-driven iOS bodybuilding app combining Computer Vision pose estimation, biomechanical morpho-analysis, and e-sport gamification
+**Stack:** SwiftUI, CoreData (programmatic model), AVFoundation, Vision framework, HealthKit
+
+---
+
+## Code Style & Conventions
+
+### General
+- Swift strict typing — no `Any` unless interfacing with CoreData/Objective-C
+- Use early returns and `guard` to reduce nesting
+- Maximum function length: ~50 lines (extract if longer)
+- Maximum file length: ~300 lines (split if longer)
+- Prefer `let` over `var`, value types over reference types when possible
+- Use `// MARK: -` sections to organize files
+
+### Naming
+```swift
+// Variables and functions: camelCase
+let userName = "John"
+func getUserById(_ id: UUID) -> UserProfile? {}
+
+// Types, protocols, enums: PascalCase
+struct PoseFrame {}
+protocol ServiceProtocol {}
+enum RankTier: String, CaseIterable {}
+
+// Constants in enums: camelCase cases
+enum AuraTheme {
+    enum Spacing {
+        static let sm: CGFloat = 8
+    }
+}
+
+// Files: PascalCase matching primary type
+// UserProfile+CoreDataClass.swift, PoseKeypoints.swift, WorkoutLiveView.swift
+```
+
+### File Organization
+```
+AuraLift/
+├── App/                    # Entry point, AppDelegate, ContentView (tab nav)
+├── Core/
+│   ├── Extensions/         # Color+AuraLift, View+Extensions, Date+Extensions
+│   ├── Persistence/        # PersistenceController, SeedDataLoader
+│   ├── Protocols/          # ServiceProtocol, RepositoryProtocol
+│   └── Theme/              # Theme.swift, ViewModifiers.swift
+├── Models/
+│   ├── CoreData/           # 12 entity classes (Entity+CoreDataClass.swift)
+│   └── Enums/              # RankTier, EquipmentType, ExerciseRisk, MuscleGroupType, CyclePhase
+├── Services/               # Domain-organized service classes
+│   ├── Camera/             # CameraManager, FrameProcessor
+│   ├── PoseAnalysis/       # PoseAnalysisManager, PoseKeypoints, FormAnalyzer
+│   ├── MorphoScanner/      # MorphoScannerService, BiomechanicsEngine
+│   ├── VelocityTracker/    # VBTService, RPECalculator
+│   ├── Ranking/            # RankingEngine, LeaderboardService
+│   ├── BioAdaptive/        # BioAdaptiveService, CycleSyncService, RecoveryHeatmapEngine
+│   ├── HealthKit/          # HealthKitManager, HealthDataModels
+│   ├── Nutrition/          # NutritionService, SupplementAdvisor
+│   ├── Audio/              # AudioManager, AnnouncerService, BPMSyncEngine
+│   ├── AR/                 # GhostModeManager, PerfectFormAvatar
+│   └── Science/            # ScienceUpdateService, TrainingProtocolUpdater
+├── ViewModels/             # 7 ObservableObject view models
+└── Views/                  # SwiftUI views organized by feature
+    ├── Components/         # NeonButton, GlowCard, CyberpunkTabBar, etc.
+    ├── Dashboard/
+    ├── Workout/
+    ├── MorphoScan/
+    ├── Ranking/
+    ├── Recovery/
+    ├── Nutrition/
+    └── Profile/
+```
+
+### Import Order
+```swift
+// 1. Foundation/System frameworks
+import Foundation
+import SwiftUI
+import CoreData
+
+// 2. Apple frameworks
+import AVFoundation
+import Vision
+import HealthKit
+
+// 3. Project imports (implicit in single-module Swift apps)
+```
+
+---
+
+## SwiftUI Patterns
+
+### View Structure
+```swift
+struct ExampleView: View {
+    // 1. Environment & injected state
+    @Environment(\.managedObjectContext) private var viewContext
+    @StateObject private var viewModel: ExampleViewModel
+
+    // 2. Local state
+    @State private var isLoading = false
+
+    // 3. Body
+    var body: some View {
+        // Main layout
+    }
+
+    // 4. Extracted subviews as computed properties
+    private var headerSection: some View { ... }
+
+    // 5. Action methods
+    private func handleSubmit() { ... }
+}
+```
+
+### Service Pattern
+```swift
+// All services conform to ServiceProtocol
+final class ExampleService: ObservableObject, ServiceProtocol {
+    var isAvailable: Bool { /* check readiness */ }
+
+    func initialize() async throws {
+        // Async setup
+    }
+}
+```
+
+### CoreData Pattern
+- All 12 entities built **programmatically** in `PersistenceController.buildManagedObjectModel()`
+- **NO** `.xcdatamodeld` files — model is 100% code-defined
+- Entity classes: `@objc(EntityName) public class EntityName: NSManagedObject`
+- Use convenience initializers with default values
+- Repositories conform to `RepositoryProtocol<Entity>` for generic CRUD
+
+---
+
+## Threading Model
+
+| Queue | Label | Purpose |
+|-------|-------|---------|
+| Main | `DispatchQueue.main` | SwiftUI updates, @Published writes |
+| Camera Session | `com.auralift.camera.session` | AVCaptureSession start/stop/config |
+| Camera Data | `com.auralift.camera.dataOutput` | Frame delivery callbacks |
+| Frame Processor | `com.auralift.frameProcessor` | Vision inference (backpressure-protected) |
+
+---
+
+## Cyberpunk Design System
+
+### Colors
+```swift
+Color.auraBlack          // #000000 — OLED black background
+Color.neonBlue           // #00D4FF — primary accent
+Color.cyberOrange        // #FF6B00 — secondary accent
+Color.neonGreen          // #00FF88 — success states
+Color.neonRed            // #FF4444 — danger states
+Color.neonGold           // #FFD700 — achievements
+Color.neonPurple         // #9B59B6 — special/mythic
+Color.auraSurface        // #0A0A0F — card backgrounds
+Color.auraSurfaceElevated // #12121A — elevated surfaces
+```
+
+### View Modifiers
+```swift
+.neonGlow(color:radius:cornerRadius:)  // Neon border + shadow
+.cyberpunkText(color:)                  // Colored text + glow shadow
+.darkCard()                             // Dark card background
+.pulse()                                // Repeating scale animation
+.auraBackground()                       // Full-screen OLED black
+```
+
+---
+
+## Do NOT
+
+- Never use `.xcdatamodeld` — model is programmatic
+- Never use `Any` type unless required by Objective-C bridging
+- Never block the main thread with Vision/AVFoundation work
+- Never leave `print()` in production code (use os_log if needed)
+- Never create SwiftUI views over 200 lines (extract components)
+- Never hardcode colors — use `Color.neonBlue` etc. from `Color+AuraLift`
+- Never skip `[weak self]` in closure captures for class instances
+
+## Do
+
+- Write self-documenting Swift code with clear naming
+- Use `// MARK: -` to organize file sections
+- Handle all camera/HealthKit permission states gracefully
+- Use `@Published` + `ObservableObject` for reactive state
+- Keep Vision inference on background threads with backpressure
+- Use `AuraTheme` constants for all spacing, radii, fonts
+- Test on physical device for camera/pose features
+
+---
+
+## Commands
+
+```bash
+# Build (Xcode)
+xcodebuild -scheme AuraLift -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+
+# This is an iOS project — no npm, no web server
+# Build and run through Xcode or xcodebuild
+```
+
+---
+
+## Resources
+
+- [Architecture](./architecture.md)
+- [Database Schema](./database-schema.md)
+- [Design System](./design-system.md)
+- [User Flows](./user-flows.md)
+- [Product Spec](./spec.md)

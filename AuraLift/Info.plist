@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Nécessaire pour le scan morphologique et l'analyse de posture en temps réel. Aucune vidéo n'est envoyée sur un serveur.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Nécessaire pour lire votre fréquence cardiaque et calculer votre récupération.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Utilisé pour synchroniser vos calories et votre poids afin d'ajuster le plan nutritionnel.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Utilisé pour calibrer l'environnement sonore.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Pour sécuriser l'accès à vos données biométriques.</string>
+</dict>
+</plist>

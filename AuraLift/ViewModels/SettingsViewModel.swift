@@ -1,0 +1,89 @@
+import Foundation
+import CoreData
+
+/// Handles account deletion: wipes all CoreData entities and resets UserDefaults.
+@MainActor
+final class SettingsViewModel: ObservableObject {
+
+    // MARK: - Published State
+
+    @Published var showDeleteConfirmation = false
+    @Published var isDeleting = false
+    @Published var deleteComplete = false
+
+    // MARK: - Dependencies
+
+    private let context: NSManagedObjectContext
+
+    // MARK: - Init
+
+    init(context: NSManagedObjectContext) {
+        self.context = context
+    }
+
+    // MARK: - Account Deletion
+
+    func deleteAccount() {
+        isDeleting = true
+
+        // Delete all CoreData entities (children before parents)
+        let entityNames = [
+            "WorkoutSet",
+            "WorkoutSession",
+            "RankingRecord",
+            "MorphoScan",
+            "RecoverySnapshot",
+            "NutritionLog",
+            "ScienceInsight",
+            "GuildMembership",
+            "MachineSpec",
+            "Exercise",
+            "MuscleGroup",
+            "UserProfile"
+        ]
+
+        for entityName in entityNames {
+            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+            do {
+                let objects = try context.fetch(fetchRequest)
+                for object in objects {
+                    context.delete(object)
+                }
+            } catch {
+                // Entity may not exist yet — continue
+            }
+        }
+
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            isDeleting = false
+            return
+        }
+
+        // Reset all UserDefaults flags
+        let userDefaultsKeys = [
+            "com.auralift.seedDataLoaded",
+            "com.auralift.machineSeedDataLoaded",
+            "com.auralift.privacyConsentAccepted",
+            "audio.masterVolume",
+            "audio.voiceVolume",
+            "audio.sfxVolume",
+            "audio.voiceEnabled",
+            "audio.sfxEnabled",
+            "audio.hapticsEnabled",
+            "announcer.voicePack"
+        ]
+
+        for key in userDefaultsKeys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+
+        // Note: HealthKit permissions cannot be revoked programmatically.
+        // Users must go to Settings → Health → AuraLift to remove access.
+
+        isDeleting = false
+        deleteComplete = true
+    }
+}

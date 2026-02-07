@@ -1,0 +1,287 @@
+import SwiftUI
+import AVFoundation
+
+// MARK: - AudioSettingsView
+
+/// Settings screen for voice pack selection, volume controls, and audio feature toggles.
+struct AudioSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    // MARK: - Settings State
+
+    @State private var selectedVoicePack: VoicePack = .esportAnnouncer
+    @State private var masterVolume: Float = 0.8
+    @State private var voiceVolume: Float = 0.8
+    @State private var sfxVolume: Float = 0.7
+    @State private var voiceEnabled: Bool = true
+    @State private var sfxEnabled: Bool = true
+    @State private var hapticsEnabled: Bool = true
+
+    // MARK: - Preview
+
+    private let previewSynthesizer = AVSpeechSynthesizer()
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: AuraTheme.Spacing.xl) {
+                    voicePackSection
+                    volumeSection
+                    togglesSection
+                    Spacer(minLength: AuraTheme.Spacing.xxl)
+                }
+                .padding(.top, AuraTheme.Spacing.lg)
+            }
+            .auraBackground()
+            .navigationTitle("Audio & Announcer")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .foregroundColor(.neonBlue)
+                }
+            }
+            .onAppear { loadSettings() }
+        }
+    }
+
+    // MARK: - Voice Pack Section
+
+    private var voicePackSection: some View {
+        VStack(spacing: AuraTheme.Spacing.md) {
+            Text("VOICE PACK")
+                .auraSectionHeader()
+
+            VStack(spacing: AuraTheme.Spacing.sm) {
+                ForEach(VoicePack.allCases, id: \.rawValue) { pack in
+                    voicePackCard(pack)
+                }
+            }
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+        }
+    }
+
+    private func voicePackCard(_ pack: VoicePack) -> some View {
+        let isSelected = selectedVoicePack == pack
+
+        return Button {
+            selectedVoicePack = pack
+            saveSettings()
+        } label: {
+            HStack(spacing: AuraTheme.Spacing.md) {
+                Image(systemName: pack.iconName)
+                    .font(.system(size: 24))
+                    .foregroundColor(isSelected ? .neonBlue : .auraTextSecondary)
+                    .frame(width: 36)
+
+                VStack(alignment: .leading, spacing: AuraTheme.Spacing.xs) {
+                    Text(pack.displayName)
+                        .font(AuraTheme.Fonts.subheading())
+                        .foregroundColor(.auraTextPrimary)
+
+                    Text(pack.description)
+                        .font(AuraTheme.Fonts.caption())
+                        .foregroundColor(.auraTextSecondary)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundColor(.neonBlue)
+                }
+            }
+            .darkCard()
+            .overlay(
+                RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
+                    .stroke(isSelected ? Color.neonBlue.opacity(0.6) : Color.clear, lineWidth: 1)
+            )
+        }
+        .contextMenu {
+            Button {
+                previewVoicePack(pack)
+            } label: {
+                Label("Preview", systemImage: "play.circle")
+            }
+        }
+    }
+
+    // MARK: - Volume Section
+
+    private var volumeSection: some View {
+        VStack(spacing: AuraTheme.Spacing.md) {
+            Text("VOLUME")
+                .auraSectionHeader()
+
+            VStack(spacing: AuraTheme.Spacing.sm) {
+                volumeSlider(label: "Master", value: $masterVolume, color: .neonBlue)
+                volumeSlider(label: "Voice", value: $voiceVolume, color: .neonGreen)
+                volumeSlider(label: "SFX", value: $sfxVolume, color: .cyberOrange)
+            }
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+        }
+    }
+
+    private func volumeSlider(label: String, value: Binding<Float>, color: Color) -> some View {
+        VStack(spacing: AuraTheme.Spacing.xs) {
+            HStack {
+                Text(label)
+                    .font(AuraTheme.Fonts.body())
+                    .foregroundColor(.auraTextPrimary)
+
+                Spacer()
+
+                Text("\(Int(value.wrappedValue * 100))%")
+                    .font(AuraTheme.Fonts.mono())
+                    .foregroundColor(color)
+            }
+
+            Slider(value: value, in: 0...1, step: 0.05)
+                .accentColor(color)
+                .onChange(of: value.wrappedValue) { _ in saveSettings() }
+        }
+        .darkCard()
+    }
+
+    // MARK: - Toggles Section
+
+    private var togglesSection: some View {
+        VStack(spacing: AuraTheme.Spacing.md) {
+            Text("FEATURES")
+                .auraSectionHeader()
+
+            VStack(spacing: AuraTheme.Spacing.sm) {
+                featureToggle(
+                    label: "Voice Announcer",
+                    description: "Spoken performance feedback during workouts",
+                    icon: "waveform",
+                    isOn: $voiceEnabled,
+                    color: .neonGreen
+                )
+                featureToggle(
+                    label: "Sound Effects",
+                    description: "Procedural audio cues for reps, combos, and events",
+                    icon: "speaker.wave.2.fill",
+                    isOn: $sfxEnabled,
+                    color: .cyberOrange
+                )
+                featureToggle(
+                    label: "Haptic Feedback",
+                    description: "Vibration patterns for reps, sets, and safety alerts",
+                    icon: "iphone.radiowaves.left.and.right",
+                    isOn: $hapticsEnabled,
+                    color: .neonBlue
+                )
+            }
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+
+            // Preview button
+            Button {
+                previewVoicePack(selectedVoicePack)
+            } label: {
+                HStack(spacing: AuraTheme.Spacing.sm) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 18))
+                    Text("Preview Voice Pack")
+                        .font(AuraTheme.Fonts.subheading())
+                }
+                .foregroundColor(.neonBlue)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AuraTheme.Spacing.md)
+                .background(Color.neonBlue.opacity(0.1))
+                .cornerRadius(AuraTheme.Radius.medium)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
+                        .stroke(Color.neonBlue.opacity(0.3), lineWidth: 0.5)
+                )
+            }
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+        }
+    }
+
+    private func featureToggle(label: String, description: String, icon: String, isOn: Binding<Bool>, color: Color) -> some View {
+        HStack(spacing: AuraTheme.Spacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(color)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(AuraTheme.Fonts.body())
+                    .foregroundColor(.auraTextPrimary)
+
+                Text(description)
+                    .font(AuraTheme.Fonts.caption())
+                    .foregroundColor(.auraTextSecondary)
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .tint(color)
+                .onChange(of: isOn.wrappedValue) { _ in saveSettings() }
+        }
+        .darkCard()
+    }
+
+    // MARK: - Preview
+
+    private func previewVoicePack(_ pack: VoicePack) {
+        let line = VoicePackLines.sessionStart(for: pack)
+        let config = pack.voiceConfig
+
+        let utterance = AVSpeechUtterance(string: line)
+        utterance.preUtteranceDelay = 0
+        utterance.volume = masterVolume * voiceVolume
+
+        if let identifier = config.voiceIdentifier {
+            utterance.voice = AVSpeechSynthesisVoice(identifier: identifier)
+                ?? AVSpeechSynthesisVoice(language: "en-US")
+        } else {
+            utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        }
+
+        utterance.pitchMultiplier = config.pitch
+        utterance.rate = config.rate
+
+        if previewSynthesizer.isSpeaking {
+            previewSynthesizer.stopSpeaking(at: .immediate)
+        }
+        previewSynthesizer.speak(utterance)
+    }
+
+    // MARK: - Persistence
+
+    private func loadSettings() {
+        let defaults = UserDefaults.standard
+        let packRaw = defaults.string(forKey: "announcer.voicePack") ?? ""
+        selectedVoicePack = VoicePack(rawValue: packRaw) ?? .esportAnnouncer
+        masterVolume = defaults.object(forKey: "audio.masterVolume") as? Float ?? 0.8
+        voiceVolume = defaults.object(forKey: "audio.voiceVolume") as? Float ?? 0.8
+        sfxVolume = defaults.object(forKey: "audio.sfxVolume") as? Float ?? 0.7
+        voiceEnabled = defaults.object(forKey: "audio.voiceEnabled") as? Bool ?? true
+        sfxEnabled = defaults.object(forKey: "audio.sfxEnabled") as? Bool ?? true
+        hapticsEnabled = defaults.object(forKey: "audio.hapticsEnabled") as? Bool ?? true
+    }
+
+    private func saveSettings() {
+        let defaults = UserDefaults.standard
+        defaults.set(selectedVoicePack.rawValue, forKey: "announcer.voicePack")
+        defaults.set(masterVolume, forKey: "audio.masterVolume")
+        defaults.set(voiceVolume, forKey: "audio.voiceVolume")
+        defaults.set(sfxVolume, forKey: "audio.sfxVolume")
+        defaults.set(voiceEnabled, forKey: "audio.voiceEnabled")
+        defaults.set(sfxEnabled, forKey: "audio.sfxEnabled")
+        defaults.set(hapticsEnabled, forKey: "audio.hapticsEnabled")
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    AudioSettingsView()
+}
