@@ -411,10 +411,25 @@ class WorkoutViewModel: ObservableObject {
         // Calculate LP and record ranking
         calculateAndRecordLP()
 
-        // Season XP: session XP + consistency bonus
+        // Cyber-Streak: record activity for today
+        CyberStreakManager.shared.recordActivity()
+
+        // Season XP: session XP + consistency bonus, multiplied by streak
         let consistencyBonus = calculateConsistencyBonus()
-        let totalSeasonXP = Int64(sessionXP) + consistencyBonus
+        let streakMultiplier = CyberStreakManager.shared.xpMultiplier
+        let totalSeasonXP = Int64(Double(Int64(sessionXP) + consistencyBonus) * streakMultiplier)
         SeasonEngine.shared.addXP(totalSeasonXP, context: context)
+
+        // Daily Quests: report workout stats
+        let totalReps = completedSets.reduce(0) { $0 + $1.reps }
+        DailyQuestManager.shared.recordWorkoutCompletion(
+            totalVolume: sessionVolume,
+            avgFormScore: averageFormScore,
+            totalReps: totalReps,
+            peakVelocity: sessionPeakVelocity,
+            totalSets: completedSets.count,
+            context: context
+        )
 
         // Audio announcements
         if let promotion = promotionStatus, promotion.isPromoted, let newTier = promotion.newTier {

@@ -4,6 +4,8 @@ import CoreData
 /// Main home screen showing the AURA LIFT title, XP progress, and quick stat cards.
 struct DashboardView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @ObservedObject private var streakManager = CyberStreakManager.shared
+    @ObservedObject private var questManager = DailyQuestManager.shared
 
     var body: some View {
         NavigationStack {
@@ -15,6 +17,12 @@ struct DashboardView: View {
                     // MARK: - XP Progress
                     XPProgressBar(currentXP: 4_200, requiredXP: 10_000, tier: "Gold")
                         .padding(.horizontal, AuraTheme.Spacing.lg)
+
+                    // MARK: - Cyber-Streak Flame
+                    cyberStreakCard
+
+                    // MARK: - Daily Ops Card
+                    dailyOpsCard
 
                     // MARK: - Season Pass Card
                     seasonPassCard
@@ -60,6 +68,119 @@ struct DashboardView: View {
             }
             .darkCard()
             .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
+        }
+        .padding(.horizontal, AuraTheme.Spacing.lg)
+    }
+
+    // MARK: - Cyber-Streak Card
+
+    private var cyberStreakCard: some View {
+        NavigationLink {
+            CyberStreakView()
+        } label: {
+            HStack(spacing: AuraTheme.Spacing.md) {
+                // Flame icon with tier color
+                Image(systemName: streakManager.streakTier.flameIcon)
+                    .font(.system(size: 32))
+                    .foregroundColor(streakFlameColor)
+                    .shadow(color: streakFlameColor.opacity(0.5), radius: 6)
+
+                VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
+                    HStack(spacing: AuraTheme.Spacing.xs) {
+                        Text("\(streakManager.currentStreak)")
+                            .font(AuraTheme.Fonts.statValue(24))
+                            .foregroundColor(streakFlameColor)
+
+                        Text("JOURS")
+                            .font(AuraTheme.Fonts.caption())
+                            .foregroundColor(.auraTextSecondary)
+
+                        if streakManager.xpMultiplier > 1.0 {
+                            Text("x\(String(format: "%.1f", streakManager.xpMultiplier)) XP")
+                                .font(.system(size: 10, weight: .black, design: .monospaced))
+                                .foregroundColor(.auraBlack)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.neonGold))
+                        }
+                    }
+
+                    Text(streakManager.streakTier.label)
+                        .font(AuraTheme.Fonts.caption())
+                        .foregroundColor(.auraTextSecondary)
+                }
+
+                Spacer()
+
+                if streakManager.isAtRisk {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(.cyberOrange)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(AuraTheme.Fonts.caption())
+                    .foregroundColor(.auraTextDisabled)
+            }
+            .darkCard()
+            .neonGlow(color: streakFlameColor, radius: AuraTheme.Shadows.subtleGlowRadius)
+        }
+        .padding(.horizontal, AuraTheme.Spacing.lg)
+    }
+
+    private var streakFlameColor: Color {
+        switch streakManager.streakTier {
+        case .none: return .auraTextDisabled
+        case .spark, .burning: return .neonBlue
+        case .blazing, .infernal: return .neonPurple
+        case .mythic: return .neonGold
+        }
+    }
+
+    // MARK: - Daily Ops Card
+
+    private var dailyOpsCard: some View {
+        NavigationLink {
+            DailyOpsView()
+        } label: {
+            HStack(spacing: AuraTheme.Spacing.md) {
+                Image(systemName: "target")
+                    .font(.system(size: 28))
+                    .foregroundColor(.cyberOrange)
+
+                VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
+                    HStack(spacing: AuraTheme.Spacing.xs) {
+                        Text("CYBER-OPS")
+                            .font(AuraTheme.Fonts.subheading())
+                            .foregroundColor(.auraTextPrimary)
+
+                        Text("\(questManager.completedQuestCount)/3")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .foregroundColor(questManager.allCompleted ? .neonGreen : .cyberOrange)
+                    }
+
+                    Text("Missions quotidiennes — \(questManager.totalQuestXP) XP")
+                        .font(AuraTheme.Fonts.caption())
+                        .foregroundColor(.auraTextSecondary)
+                }
+
+                Spacer()
+
+                // Mini progress dots
+                HStack(spacing: 4) {
+                    ForEach(0..<3, id: \.self) { i in
+                        Circle()
+                            .fill(i < questManager.completedQuestCount ? Color.neonGreen : Color.auraSurfaceElevated)
+                            .frame(width: 8, height: 8)
+                    }
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(AuraTheme.Fonts.caption())
+                    .foregroundColor(.auraTextDisabled)
+            }
+            .darkCard()
+            .neonGlow(color: .cyberOrange, radius: AuraTheme.Shadows.subtleGlowRadius)
         }
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
@@ -119,8 +240,8 @@ struct DashboardView: View {
                 statCard(
                     icon: "flame.fill",
                     title: "Streak",
-                    value: "12 days",
-                    accent: .cyberOrange
+                    value: "\(streakManager.currentStreak)j",
+                    accent: streakFlameColor
                 )
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)

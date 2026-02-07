@@ -78,6 +78,7 @@ struct PaywallView: View {
             featureRow(icon: "figure.stand", text: "Ghost Mode AR coaching")
             featureRow(icon: "waveform", text: "Spartan Warrior voice pack")
             featureRow(icon: "star.circle.fill", text: "Season Pass rewards premium")
+            featureRow(icon: "snowflake", text: "Streak Freeze — 1x / mois")
             featureRow(icon: "chart.bar.fill", text: "Statistiques avancées")
         }
         .padding(.horizontal, AuraTheme.Spacing.xl)

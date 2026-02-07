@@ -176,58 +176,7 @@ final class SeasonEngine: ObservableObject {
         let start = calendar.date(from: DateComponents(year: 2026, month: 1, day: 1)) ?? Date()
         let end = calendar.date(from: DateComponents(year: 2026, month: 3, day: 31)) ?? Date()
 
-        let levels: [SeasonLevel] = [
-            SeasonLevel(
-                level: 1, xpRequired: 0,
-                freeReward: SeasonReward(id: "s0_f1", type: .ghostSkin, displayName: "Ghost: Iron", description: "Gray ghost skeleton overlay", iconName: "figure.stand"),
-                premiumReward: SeasonReward(id: "s0_p1", type: .xpBoost, displayName: "+10% XP Boost", description: "Earn 10% more XP per rep", iconName: "arrow.up.circle.fill")
-            ),
-            SeasonLevel(
-                level: 2, xpRequired: 500,
-                freeReward: nil,
-                premiumReward: SeasonReward(id: "s0_p2", type: .profileFrame, displayName: "Neon Edge", description: "Neon blue profile frame", iconName: "square.on.circle")
-            ),
-            SeasonLevel(
-                level: 3, xpRequired: 1_200,
-                freeReward: SeasonReward(id: "s0_f3", type: .appIcon, displayName: "Cyber Mode", description: "Alternate app icon: Cyber Mode", iconName: "app.badge.fill"),
-                premiumReward: nil
-            ),
-            SeasonLevel(
-                level: 4, xpRequired: 2_000,
-                freeReward: nil,
-                premiumReward: SeasonReward(id: "s0_p4", type: .ghostSkin, displayName: "Ghost: Gold Glow", description: "Golden ghost skeleton overlay", iconName: "figure.stand")
-            ),
-            SeasonLevel(
-                level: 5, xpRequired: 3_000,
-                freeReward: SeasonReward(id: "s0_f5", type: .profileFrame, displayName: "Iron Border", description: "Iron-tier profile frame", iconName: "square.on.circle"),
-                premiumReward: SeasonReward(id: "s0_p5", type: .xpBoost, displayName: "+20% XP Boost", description: "Earn 20% more XP per rep", iconName: "arrow.up.circle.fill")
-            ),
-            SeasonLevel(
-                level: 6, xpRequired: 4_200,
-                freeReward: nil,
-                premiumReward: SeasonReward(id: "s0_p6", type: .appIcon, displayName: "Spartan Crest", description: "Alternate app icon: Spartan Crest", iconName: "app.badge.fill")
-            ),
-            SeasonLevel(
-                level: 7, xpRequired: 5_500,
-                freeReward: SeasonReward(id: "s0_f7", type: .ghostSkin, displayName: "Ghost: Neon Blue", description: "Neon blue ghost skeleton overlay", iconName: "figure.stand"),
-                premiumReward: nil
-            ),
-            SeasonLevel(
-                level: 8, xpRequired: 7_000,
-                freeReward: nil,
-                premiumReward: SeasonReward(id: "s0_p8", type: .profileFrame, displayName: "Diamond Edge", description: "Diamond-tier profile frame", iconName: "square.on.circle")
-            ),
-            SeasonLevel(
-                level: 9, xpRequired: 8_800,
-                freeReward: SeasonReward(id: "s0_f9", type: .appIcon, displayName: "Dark Titan", description: "Alternate app icon: Dark Titan", iconName: "app.badge.fill"),
-                premiumReward: nil
-            ),
-            SeasonLevel(
-                level: 10, xpRequired: 11_000,
-                freeReward: SeasonReward(id: "s0_f10", type: .profileFrame, displayName: "Challenger", description: "Challenger-tier profile frame", iconName: "square.on.circle"),
-                premiumReward: SeasonReward(id: "s0_p10", type: .ghostSkin, displayName: "Ghost: Mythic Purple", description: "Mythic purple ghost skeleton overlay", iconName: "figure.stand")
-            ),
-        ]
+        let levels = buildSeason0Levels()
 
         return Season(
             id: "season_0_alpha",
@@ -236,5 +185,144 @@ final class SeasonEngine: ObservableObject {
             endDate: end,
             levels: levels
         )
+    }
+
+    // MARK: - 50-Level Reward Table
+
+    /// Builds 50 levels with escalating XP thresholds and alternating free/premium rewards.
+    /// XP curve: level 1 = 0, then ~300 XP per level scaling up to ~1200 at level 50.
+    /// Total XP to max: ~38,000 (achievable in ~3 months with daily play + quests).
+    private static func buildSeason0Levels() -> [SeasonLevel] {
+        // Reward pools
+        let ghostSkins = [
+            ("Iron", "Gray ghost skeleton"),
+            ("Neon Blue", "Neon blue ghost skeleton"),
+            ("Gold Glow", "Golden ghost skeleton"),
+            ("Crimson", "Red neon ghost skeleton"),
+            ("Emerald", "Green neon ghost skeleton"),
+            ("Frost", "Ice-blue ghost skeleton"),
+            ("Solar Flare", "Orange radiant ghost"),
+            ("Void", "Dark purple ghost skeleton"),
+            ("Plasma", "Electric white ghost"),
+            ("Mythic Purple", "Mythic purple ghost skeleton"),
+        ]
+
+        let profileFrames = [
+            ("Iron Border", "Iron-tier profile frame"),
+            ("Neon Edge", "Neon blue profile frame"),
+            ("Gold Ring", "Gold accent profile frame"),
+            ("Diamond Edge", "Diamond-tier profile frame"),
+            ("Crimson Halo", "Red neon profile frame"),
+            ("Emerald Crown", "Green elite profile frame"),
+            ("Frost Aura", "Ice-blue profile frame"),
+            ("Solar Frame", "Radiant orange profile frame"),
+            ("Void Border", "Dark purple profile frame"),
+            ("Challenger", "Challenger-tier profile frame"),
+        ]
+
+        let appIcons = [
+            ("Cyber Mode", "Alternate app icon: Cyber Mode"),
+            ("Spartan Crest", "Alternate app icon: Spartan Crest"),
+            ("Dark Titan", "Alternate app icon: Dark Titan"),
+            ("Neon Skull", "Alternate app icon: Neon Skull"),
+            ("Phoenix", "Alternate app icon: Phoenix"),
+        ]
+
+        var levels: [SeasonLevel] = []
+        var ghostIdx = 0
+        var frameIdx = 0
+        var iconIdx = 0
+
+        for lvl in 1...50 {
+            // XP curve: base 300 + 18 * level (ramps from 318 to 1200)
+            let xp: Int64 = lvl == 1 ? 0 : Int64(300 * (lvl - 1)) + Int64(9 * (lvl - 1) * (lvl - 1) / 50)
+
+            var freeReward: SeasonReward?
+            var premiumReward: SeasonReward?
+
+            // Distribute rewards across levels:
+            // Every 5 levels: milestone with both tracks
+            // Odd levels: free track reward
+            // Even levels: premium track reward
+            // Levels with no reward on a track: nil
+
+            if lvl % 10 == 0 {
+                // Milestone levels (10, 20, 30, 40, 50): both tracks, ghost skins
+                let gIdx = min(ghostIdx, ghostSkins.count - 1)
+                freeReward = SeasonReward(
+                    id: "s0_f\(lvl)", type: .ghostSkin,
+                    displayName: "Ghost: \(ghostSkins[gIdx].0)",
+                    description: ghostSkins[gIdx].1,
+                    iconName: "figure.stand"
+                )
+                ghostIdx += 1
+
+                let fIdx = min(frameIdx, profileFrames.count - 1)
+                premiumReward = SeasonReward(
+                    id: "s0_p\(lvl)", type: .profileFrame,
+                    displayName: profileFrames[fIdx].0,
+                    description: profileFrames[fIdx].1,
+                    iconName: "square.on.circle"
+                )
+                frameIdx += 1
+            } else if lvl % 5 == 0 {
+                // Every 5th level: XP boost (premium) + app icon (free)
+                if iconIdx < appIcons.count {
+                    freeReward = SeasonReward(
+                        id: "s0_f\(lvl)", type: .appIcon,
+                        displayName: appIcons[iconIdx].0,
+                        description: appIcons[iconIdx].1,
+                        iconName: "app.badge.fill"
+                    )
+                    iconIdx += 1
+                }
+                let boostPercent = min(10 + (lvl / 5) * 5, 50)
+                premiumReward = SeasonReward(
+                    id: "s0_p\(lvl)", type: .xpBoost,
+                    displayName: "+\(boostPercent)% XP Boost",
+                    description: "Earn \(boostPercent)% more XP per rep",
+                    iconName: "arrow.up.circle.fill"
+                )
+            } else if lvl % 3 == 0 {
+                // Every 3rd level: profile frame (alternates free/premium)
+                let fIdx = min(frameIdx, profileFrames.count - 1)
+                if lvl % 6 == 0 {
+                    premiumReward = SeasonReward(
+                        id: "s0_p\(lvl)", type: .profileFrame,
+                        displayName: profileFrames[fIdx].0,
+                        description: profileFrames[fIdx].1,
+                        iconName: "square.on.circle"
+                    )
+                } else {
+                    freeReward = SeasonReward(
+                        id: "s0_f\(lvl)", type: .profileFrame,
+                        displayName: profileFrames[fIdx].0,
+                        description: profileFrames[fIdx].1,
+                        iconName: "square.on.circle"
+                    )
+                }
+                frameIdx = (frameIdx + 1) % profileFrames.count
+            } else if lvl % 7 == 0 {
+                // Every 7th level: ghost skin (premium)
+                let gIdx = min(ghostIdx, ghostSkins.count - 1)
+                premiumReward = SeasonReward(
+                    id: "s0_p\(lvl)", type: .ghostSkin,
+                    displayName: "Ghost: \(ghostSkins[gIdx].0)",
+                    description: ghostSkins[gIdx].1,
+                    iconName: "figure.stand"
+                )
+                ghostIdx = (ghostIdx + 1) % ghostSkins.count
+            }
+            // Remaining levels have no rewards (empty rows)
+
+            levels.append(SeasonLevel(
+                level: lvl,
+                xpRequired: xp,
+                freeReward: freeReward,
+                premiumReward: premiumReward
+            ))
+        }
+
+        return levels
     }
 }

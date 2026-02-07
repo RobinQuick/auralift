@@ -75,12 +75,20 @@ final class SettingsViewModel: ObservableObject {
             "audio.sfxEnabled",
             "audio.hapticsEnabled",
             "announcer.voicePack",
-            "com.auralift.seasonInitialized"
+            "com.auralift.seasonInitialized",
+            "com.auralift.streak.count",
+            "com.auralift.streak.lastActiveDate",
+            "com.auralift.dailyQuests",
+            "com.auralift.dailyQuestsDate"
         ]
 
         for key in userDefaultsKeys {
             UserDefaults.standard.removeObject(forKey: key)
         }
+
+        // Reset streak and daily quests
+        CyberStreakManager.shared.reset()
+        DailyQuestManager.shared.reset()
 
         // Note: HealthKit permissions cannot be revoked programmatically.
         // Users must go to Settings → Health → AuraLift to remove access.
