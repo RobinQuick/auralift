@@ -12,6 +12,9 @@ struct AuraLiftApp: App {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .preferredColorScheme(.dark)
+                .task {
+                    await PremiumManager.shared.loadProducts()
+                }
         }
     }
 }

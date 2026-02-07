@@ -101,6 +101,14 @@ class WorkoutViewModel: ObservableObject {
     @Published var workoutLP: Int32 = 0
     @Published var promotionStatus: PromotionStatus?
 
+    // MARK: - Premium Gating
+
+    private let premiumManager = PremiumManager.shared
+    @Published var showPaywall: Bool = false
+
+    var canAccessVBT: Bool { premiumManager.isPro }
+    var canAccessGhostMode: Bool { premiumManager.isPro }
+
     // MARK: - CoreData
 
     private let context: NSManagedObjectContext
@@ -403,6 +411,11 @@ class WorkoutViewModel: ObservableObject {
         // Calculate LP and record ranking
         calculateAndRecordLP()
 
+        // Season XP: session XP + consistency bonus
+        let consistencyBonus = calculateConsistencyBonus()
+        let totalSeasonXP = Int64(sessionXP) + consistencyBonus
+        SeasonEngine.shared.addXP(totalSeasonXP, context: context)
+
         // Audio announcements
         if let promotion = promotionStatus, promotion.isPromoted, let newTier = promotion.newTier {
             announcerService.handleEvent(.rankUp(newTier: newTier))
@@ -411,6 +424,40 @@ class WorkoutViewModel: ObservableObject {
 
         isSessionActive = false
         showSessionSummary = true
+    }
+
+    // MARK: - Consistency Bonus
+
+    private func calculateConsistencyBonus() -> Int64 {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) else { return 0 }
+
+        let request = NSFetchRequest<WorkoutSession>(entityName: "WorkoutSession")
+        request.predicate = NSPredicate(format: "startTime >= %@", weekAgo as NSDate)
+        request.sortDescriptors = [NSSortDescriptor(key: "startTime", ascending: false)]
+
+        guard let sessions = try? context.fetch(request) else { return 0 }
+
+        // Count consecutive days with workouts (including today)
+        var consecutiveDays = 0
+        var checkDate = calendar.startOfDay(for: now)
+
+        for _ in 0..<7 {
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: checkDate) ?? checkDate
+            let hasSession = sessions.contains { session in
+                guard let start = session.startTime else { return false }
+                return start >= checkDate && start < dayEnd
+            }
+            if hasSession {
+                consecutiveDays += 1
+                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
+            } else {
+                break
+            }
+        }
+
+        return Int64(consecutiveDays) * 50
     }
 
     // MARK: - Ranking Integration
@@ -630,6 +677,10 @@ class WorkoutViewModel: ObservableObject {
     // MARK: - Ghost Mode
 
     func toggleGhostMode() {
+        guard canAccessGhostMode else {
+            showPaywall = true
+            return
+        }
         if ghostModeManager.isGhostModeEnabled {
             ghostModeManager.stopGhostMode()
         } else if !currentExerciseName.isEmpty {

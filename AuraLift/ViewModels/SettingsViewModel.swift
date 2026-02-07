@@ -36,6 +36,7 @@ final class SettingsViewModel: ObservableObject {
             "NutritionLog",
             "ScienceInsight",
             "GuildMembership",
+            "SeasonProgress",
             "MachineSpec",
             "Exercise",
             "MuscleGroup",
@@ -73,7 +74,8 @@ final class SettingsViewModel: ObservableObject {
             "audio.voiceEnabled",
             "audio.sfxEnabled",
             "audio.hapticsEnabled",
-            "announcer.voicePack"
+            "announcer.voicePack",
+            "com.auralift.seasonInitialized"
         ]
 
         for key in userDefaultsKeys {

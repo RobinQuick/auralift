@@ -52,6 +52,7 @@ struct PersistenceController {
         let nutritionLogEntity = buildNutritionLogEntity()
         let scienceInsightEntity = buildScienceInsightEntity()
         let guildMembershipEntity = buildGuildMembershipEntity()
+        let seasonProgressEntity = buildSeasonProgressEntity()
 
         // Wire up relationships
         wireRelationships(
@@ -65,7 +66,8 @@ struct PersistenceController {
             muscleGroup: muscleGroupEntity,
             recoverySnapshot: recoverySnapshotEntity,
             nutritionLog: nutritionLogEntity,
-            guildMembership: guildMembershipEntity
+            guildMembership: guildMembershipEntity,
+            seasonProgress: seasonProgressEntity
         )
 
         model.entities = [
@@ -80,7 +82,8 @@ struct PersistenceController {
             recoverySnapshotEntity,
             nutritionLogEntity,
             scienceInsightEntity,
-            guildMembershipEntity
+            guildMembershipEntity,
+            seasonProgressEntity
         ]
 
         return model
@@ -331,6 +334,21 @@ struct PersistenceController {
         return entity
     }
 
+    private static func buildSeasonProgressEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = "SeasonProgress"
+        entity.managedObjectClassName = "SeasonProgress"
+        entity.properties = [
+            attribute("id", .UUIDAttributeType, optional: false),
+            attribute("seasonId", .stringAttributeType, optional: false),
+            attribute("userXP", .integer64AttributeType, defaultValue: Int64(0)),
+            attribute("currentLevel", .integer16AttributeType, defaultValue: Int16(1)),
+            attribute("claimedRewards", .stringAttributeType, defaultValue: ""),
+            attribute("lastUpdated", .dateAttributeType, optional: false),
+        ]
+        return entity
+    }
+
     // MARK: - Relationship Wiring
 
     private static func wireRelationships(
@@ -344,7 +362,8 @@ struct PersistenceController {
         muscleGroup: NSEntityDescription,
         recoverySnapshot: NSEntityDescription,
         nutritionLog: NSEntityDescription,
-        guildMembership: NSEntityDescription
+        guildMembership: NSEntityDescription,
+        seasonProgress: NSEntityDescription
     ) {
         // UserProfile ↔ MorphoScan (one-to-many)
         let userToMorpho = relationship("morphoScans", destination: morphoScan, toMany: true)
@@ -412,8 +431,14 @@ struct PersistenceController {
         muscleToRecovery.inverseRelationship = recoveryToMuscle
         recoveryToMuscle.inverseRelationship = muscleToRecovery
 
+        // UserProfile ↔ SeasonProgress (one-to-one, optional)
+        let userToSeason = relationship("seasonProgress", destination: seasonProgress, optional: true)
+        let seasonToUser = relationship("userProfile", destination: userProfile)
+        userToSeason.inverseRelationship = seasonToUser
+        seasonToUser.inverseRelationship = userToSeason
+
         // Assign relationships to entities
-        userProfile.properties += [userToMorpho, userToSessions, userToRankings, userToRecovery, userToNutrition, userToGuild]
+        userProfile.properties += [userToMorpho, userToSessions, userToRankings, userToRecovery, userToNutrition, userToGuild, userToSeason]
         morphoScan.properties += [morphoToUser]
         exercise.properties += [exerciseToMachine, exerciseToSets, exerciseToMuscles]
         machineSpec.properties += [machineToExercise]
@@ -424,6 +449,7 @@ struct PersistenceController {
         recoverySnapshot.properties += [recoveryToUser, recoveryToMuscle]
         nutritionLog.properties += [nutritionToUser]
         guildMembership.properties += [guildToUser]
+        seasonProgress.properties += [seasonToUser]
     }
 
     // MARK: - Helpers

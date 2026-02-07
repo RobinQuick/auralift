@@ -6,23 +6,62 @@ struct DashboardView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: AuraTheme.Spacing.xl) {
-                // MARK: - Header
-                headerSection
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: AuraTheme.Spacing.xl) {
+                    // MARK: - Header
+                    headerSection
 
-                // MARK: - XP Progress
-                XPProgressBar(currentXP: 4_200, requiredXP: 10_000, tier: "Gold")
-                    .padding(.horizontal, AuraTheme.Spacing.lg)
+                    // MARK: - XP Progress
+                    XPProgressBar(currentXP: 4_200, requiredXP: 10_000, tier: "Gold")
+                        .padding(.horizontal, AuraTheme.Spacing.lg)
 
-                // MARK: - Quick Stats
-                quickStatsSection
+                    // MARK: - Season Pass Card
+                    seasonPassCard
 
-                Spacer(minLength: AuraTheme.Spacing.xxl)
+                    // MARK: - Quick Stats
+                    quickStatsSection
+
+                    Spacer(minLength: AuraTheme.Spacing.xxl)
+                }
+                .padding(.top, AuraTheme.Spacing.xl)
             }
-            .padding(.top, AuraTheme.Spacing.xl)
+            .auraBackground()
         }
-        .auraBackground()
+    }
+
+    // MARK: - Season Pass Card
+
+    private var seasonPassCard: some View {
+        NavigationLink {
+            SeasonPassView(context: viewContext)
+                .environment(\.managedObjectContext, viewContext)
+        } label: {
+            HStack(spacing: AuraTheme.Spacing.md) {
+                Image(systemName: "star.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(.neonGold)
+
+                VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
+                    Text("SEASON PASS")
+                        .font(AuraTheme.Fonts.subheading())
+                        .foregroundColor(.auraTextPrimary)
+
+                    Text("Alpha Protocol — Saison 0")
+                        .font(AuraTheme.Fonts.caption())
+                        .foregroundColor(.auraTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(AuraTheme.Fonts.caption())
+                    .foregroundColor(.auraTextDisabled)
+            }
+            .darkCard()
+            .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
+        }
+        .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
     // MARK: - Header

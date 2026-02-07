@@ -92,6 +92,9 @@ struct WorkoutLiveView: View {
         .sheet(isPresented: $viewModel.showSessionSummary) {
             sessionSummaryView
         }
+        .sheet(isPresented: $viewModel.showPaywall) {
+            PaywallView()
+        }
     }
 
     // MARK: - Permission Denied View
@@ -136,7 +139,12 @@ struct WorkoutLiveView: View {
 
             // Middle row: velocity (left) + form score (right)
             HStack {
-                velocityReadout
+                ZStack {
+                    velocityReadout
+                    if !viewModel.canAccessVBT {
+                        LockedOverlayView(showPaywall: $viewModel.showPaywall)
+                    }
+                }
                 Spacer()
                 formScoreView
             }
@@ -410,12 +418,20 @@ struct WorkoutLiveView: View {
                 }
 
                 if viewModel.isSessionActive && viewModel.selectedExercise != nil {
-                    NeonOutlineButton(
-                        title: "GHOST",
-                        icon: "figure.stand",
-                        color: viewModel.isGhostModeEnabled ? .neonGreen : .neonBlue
-                    ) {
-                        viewModel.toggleGhostMode()
+                    ZStack(alignment: .topTrailing) {
+                        NeonOutlineButton(
+                            title: "GHOST",
+                            icon: viewModel.canAccessGhostMode ? "figure.stand" : "lock.fill",
+                            color: viewModel.isGhostModeEnabled ? .neonGreen :
+                                   viewModel.canAccessGhostMode ? .neonBlue : .auraTextSecondary
+                        ) {
+                            viewModel.toggleGhostMode()
+                        }
+
+                        if !viewModel.canAccessGhostMode {
+                            PremiumBadge(.small)
+                                .offset(x: 4, y: -6)
+                        }
                     }
                 }
 
@@ -477,7 +493,14 @@ struct WorkoutLiveView: View {
                 summaryStatCard(title: "TOTAL VOLUME", value: String(format: "%.0f kg", viewModel.sessionVolume), color: .neonBlue)
                 summaryStatCard(title: "SETS", value: "\(viewModel.completedSets.count)", color: .neonBlue)
                 summaryStatCard(title: "AVG FORM", value: "\(Int(viewModel.averageFormScore))%", color: formScoreColor)
-                summaryStatCard(title: "PEAK VELOCITY", value: String(format: "%.2f m/s", viewModel.sessionPeakVelocity), color: .neonBlue)
+                if viewModel.canAccessVBT {
+                    summaryStatCard(title: "PEAK VELOCITY", value: String(format: "%.2f m/s", viewModel.sessionPeakVelocity), color: .neonBlue)
+                } else {
+                    ZStack {
+                        summaryStatCard(title: "PEAK VELOCITY", value: "---", color: .auraTextDisabled)
+                        LockedOverlayView(showPaywall: $viewModel.showPaywall)
+                    }
+                }
                 summaryStatCard(title: "XP EARNED", value: "+\(viewModel.sessionXP)", color: .neonGold)
                 summaryStatCard(title: "LP EARNED", value: "+\(viewModel.workoutLP)", color: .neonGold)
             }

@@ -16,6 +16,7 @@ struct AudioSettingsView: View {
     @State private var voiceEnabled: Bool = true
     @State private var sfxEnabled: Bool = true
     @State private var hapticsEnabled: Bool = true
+    @State private var showPaywall: Bool = false
 
     // MARK: - Preview
 
@@ -42,6 +43,9 @@ struct AudioSettingsView: View {
                 }
             }
             .onAppear { loadSettings() }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
+            }
         }
     }
 
@@ -63,21 +67,32 @@ struct AudioSettingsView: View {
 
     private func voicePackCard(_ pack: VoicePack) -> some View {
         let isSelected = selectedVoicePack == pack
+        let isLocked = pack == .spartanWarrior && !PremiumManager.shared.isPro
 
         return Button {
-            selectedVoicePack = pack
-            saveSettings()
+            if isLocked {
+                showPaywall = true
+            } else {
+                selectedVoicePack = pack
+                saveSettings()
+            }
         } label: {
             HStack(spacing: AuraTheme.Spacing.md) {
                 Image(systemName: pack.iconName)
                     .font(.system(size: 24))
-                    .foregroundColor(isSelected ? .neonBlue : .auraTextSecondary)
+                    .foregroundColor(isLocked ? .auraTextDisabled : (isSelected ? .neonBlue : .auraTextSecondary))
                     .frame(width: 36)
 
                 VStack(alignment: .leading, spacing: AuraTheme.Spacing.xs) {
-                    Text(pack.displayName)
-                        .font(AuraTheme.Fonts.subheading())
-                        .foregroundColor(.auraTextPrimary)
+                    HStack(spacing: AuraTheme.Spacing.xs) {
+                        Text(pack.displayName)
+                            .font(AuraTheme.Fonts.subheading())
+                            .foregroundColor(isLocked ? .auraTextDisabled : .auraTextPrimary)
+
+                        if isLocked {
+                            PremiumBadge(.small)
+                        }
+                    }
 
                     Text(pack.description)
                         .font(AuraTheme.Fonts.caption())
@@ -86,7 +101,11 @@ struct AudioSettingsView: View {
 
                 Spacer()
 
-                if isSelected {
+                if isLocked {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(.neonGold)
+                } else if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 22))
                         .foregroundColor(.neonBlue)
@@ -95,14 +114,17 @@ struct AudioSettingsView: View {
             .darkCard()
             .overlay(
                 RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
-                    .stroke(isSelected ? Color.neonBlue.opacity(0.6) : Color.clear, lineWidth: 1)
+                    .stroke(isSelected && !isLocked ? Color.neonBlue.opacity(0.6) : Color.clear, lineWidth: 1)
             )
         }
+        .disabled(isLocked)
         .contextMenu {
-            Button {
-                previewVoicePack(pack)
-            } label: {
-                Label("Preview", systemImage: "play.circle")
+            if !isLocked {
+                Button {
+                    previewVoicePack(pack)
+                } label: {
+                    Label("Preview", systemImage: "play.circle")
+                }
             }
         }
     }

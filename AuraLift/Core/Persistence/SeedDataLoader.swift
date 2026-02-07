@@ -6,11 +6,13 @@ struct SeedDataLoader {
     private static let seedKey = "com.auralift.seedDataLoaded"
 
     private static let machinesSeedKey = "com.auralift.machineSeedDataLoaded"
+    private static let seasonSeedKey = "com.auralift.seasonInitialized"
 
     /// Load exercise database if not already loaded.
     static func loadIfNeeded(into context: NSManagedObjectContext) {
         let needsExercises = !UserDefaults.standard.bool(forKey: seedKey)
         let needsMachines = !UserDefaults.standard.bool(forKey: machinesSeedKey)
+        let needsSeason = !UserDefaults.standard.bool(forKey: seasonSeedKey)
 
         if needsExercises {
             loadExercises(into: context)
@@ -22,6 +24,10 @@ struct SeedDataLoader {
             loadMachineExercises(into: context)
         }
 
+        if needsSeason {
+            initializeSeason(into: context)
+        }
+
         do {
             try context.save()
             // Only mark as loaded AFTER successful save
@@ -30,6 +36,9 @@ struct SeedDataLoader {
             }
             if needsMachines {
                 UserDefaults.standard.set(true, forKey: machinesSeedKey)
+            }
+            if needsSeason {
+                UserDefaults.standard.set(true, forKey: seasonSeedKey)
             }
         } catch {
             context.rollback()
@@ -42,6 +51,7 @@ struct SeedDataLoader {
         loadMuscleGroups(into: context)
         loadMachineExercises(into: context)
         createDefaultProfile(into: context)
+        initializeSeason(into: context)
         try? context.save()
     }
 
@@ -56,6 +66,30 @@ struct SeedDataLoader {
         profile.setValue(Int64(0), forKey: "totalXP")
         profile.setValue(Date(), forKey: "createdAt")
         profile.setValue(Date(), forKey: "updatedAt")
+    }
+
+    // MARK: - Season Progress
+
+    private static func initializeSeason(into context: NSManagedObjectContext) {
+        // Only create if none exists
+        let checkRequest = NSFetchRequest<NSManagedObject>(entityName: "SeasonProgress")
+        checkRequest.fetchLimit = 1
+        if let existing = try? context.fetch(checkRequest), !existing.isEmpty { return }
+
+        let season = NSEntityDescription.insertNewObject(forEntityName: "SeasonProgress", into: context)
+        season.setValue(UUID(), forKey: "id")
+        season.setValue("season_0_alpha", forKey: "seasonId")
+        season.setValue(Int64(0), forKey: "userXP")
+        season.setValue(Int16(1), forKey: "currentLevel")
+        season.setValue("", forKey: "claimedRewards")
+        season.setValue(Date(), forKey: "lastUpdated")
+
+        // Link to default user profile
+        let profileRequest = NSFetchRequest<NSManagedObject>(entityName: "UserProfile")
+        profileRequest.fetchLimit = 1
+        if let profile = try? context.fetch(profileRequest).first {
+            season.setValue(profile, forKey: "userProfile")
+        }
     }
 
     // MARK: - Muscle Groups

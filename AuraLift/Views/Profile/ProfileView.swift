@@ -18,6 +18,12 @@ struct ProfileView: View {
     @State private var isDeleting = false
     @State private var deleteComplete = false
 
+    // Beta unlock
+    @State private var betaTapCount = 0
+    @State private var showBetaUnlock = false
+    @State private var betaCodeInput = ""
+    @State private var betaUnlockSuccess = false
+
     private let settingsItems: [(icon: String, label: String, color: Color)] = [
         ("person.fill", "Edit Profile", .neonPurple),
         ("ruler.fill", "Units & Measurements", .neonBlue),
@@ -87,6 +93,14 @@ struct ProfileView: View {
                 onRefused: { showPrivacyInfo = false }
             )
         }
+        .sheet(isPresented: $showBetaUnlock) {
+            betaUnlockSheet
+        }
+        .overlay {
+            if betaUnlockSuccess {
+                betaSuccessBanner
+            }
+        }
     }
 
     // MARK: - Avatar Section
@@ -108,9 +122,15 @@ struct ProfileView: View {
                     .foregroundColor(.neonPurple.opacity(0.7))
             }
 
-            Text(username)
-                .font(AuraTheme.Fonts.heading())
-                .foregroundColor(.auraTextPrimary)
+            HStack(spacing: AuraTheme.Spacing.sm) {
+                Text(username)
+                    .font(AuraTheme.Fonts.heading())
+                    .foregroundColor(.auraTextPrimary)
+
+                if PremiumManager.shared.isPro {
+                    PremiumBadge(.medium)
+                }
+            }
 
             HStack(spacing: AuraTheme.Spacing.sm) {
                 Image(systemName: "shield.checkered")
@@ -174,6 +194,37 @@ struct ProfileView: View {
                     } else if item.label == "Privacy" {
                         Button { showPrivacyInfo = true } label: {
                             settingsRow(item)
+                        }
+                    } else if item.label == "About AuraLift" {
+                        Button {
+                            betaTapCount += 1
+                            if betaTapCount >= 5 {
+                                betaTapCount = 0
+                                showBetaUnlock = true
+                            }
+                        } label: {
+                            HStack(spacing: AuraTheme.Spacing.md) {
+                                Image(systemName: item.icon)
+                                    .font(.system(size: 18))
+                                    .foregroundColor(item.color)
+                                    .frame(width: 28)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.label)
+                                        .font(AuraTheme.Fonts.body())
+                                        .foregroundColor(.auraTextPrimary)
+                                    Text("Version 0.1.0")
+                                        .font(AuraTheme.Fonts.caption())
+                                        .foregroundColor(.auraTextDisabled)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(AuraTheme.Fonts.caption())
+                                    .foregroundColor(.auraTextDisabled)
+                            }
+                            .darkCard()
                         }
                     } else {
                         settingsRow(item)
@@ -261,6 +312,84 @@ struct ProfileView: View {
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 withAnimation { deleteComplete = false }
+            }
+        }
+    }
+
+    // MARK: - Beta Unlock Sheet
+
+    private var betaUnlockSheet: some View {
+        VStack(spacing: AuraTheme.Spacing.xl) {
+            Spacer()
+
+            Image(systemName: "key.fill")
+                .font(.system(size: 48))
+                .cyberpunkText(color: .neonGold)
+
+            Text("BETA ACCESS CODE")
+                .font(AuraTheme.Fonts.heading())
+                .cyberpunkText(color: .neonGold)
+
+            Text("Entre ton code d'accès alpha pour débloquer AuraLift Pro pendant 3 mois.")
+                .font(AuraTheme.Fonts.body())
+                .foregroundColor(.auraTextSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, AuraTheme.Spacing.xl)
+
+            TextField("Code d'accès", text: $betaCodeInput)
+                .font(AuraTheme.Fonts.mono())
+                .foregroundColor(.auraTextPrimary)
+                .multilineTextAlignment(.center)
+                .padding(AuraTheme.Spacing.md)
+                .background(Color.auraSurfaceElevated)
+                .cornerRadius(AuraTheme.Radius.small)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AuraTheme.Radius.small)
+                        .stroke(Color.neonGold.opacity(0.3), lineWidth: 0.5)
+                )
+                .padding(.horizontal, AuraTheme.Spacing.xxl)
+                .autocapitalization(.allCharacters)
+                .disableAutocorrection(true)
+
+            NeonButton(title: "UNLOCK", icon: "lock.open.fill", color: .neonGold) {
+                let success = PremiumManager.shared.validateBetaCode(betaCodeInput)
+                if success {
+                    showBetaUnlock = false
+                    betaCodeInput = ""
+                    withAnimation { betaUnlockSuccess = true }
+                }
+            }
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+
+            Spacer()
+        }
+        .auraBackground()
+    }
+
+    // MARK: - Beta Success Banner
+
+    private var betaSuccessBanner: some View {
+        VStack {
+            Spacer()
+
+            HStack(spacing: AuraTheme.Spacing.sm) {
+                Image(systemName: "crown.fill")
+                    .foregroundColor(.neonGold)
+                Text("3 mois de Pro débloqués")
+                    .font(AuraTheme.Fonts.body())
+                    .foregroundColor(.auraTextPrimary)
+            }
+            .padding(AuraTheme.Spacing.lg)
+            .background(Color.auraSurfaceElevated)
+            .cornerRadius(AuraTheme.Radius.medium)
+            .neonGlow(color: .neonGold, radius: 8, cornerRadius: AuraTheme.Radius.medium)
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+            .padding(.bottom, AuraTheme.Spacing.xxl)
+        }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation { betaUnlockSuccess = false }
             }
         }
     }
