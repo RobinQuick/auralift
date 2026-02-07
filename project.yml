@@ -1,0 +1,130 @@
+name: AuraLift
+options:
+  bundleIdPrefix: com.auralift
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    INFOPLIST_FILE: AuraLift/Info.plist
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    CODE_SIGN_ENTITLEMENTS: AuraLift/AuraLift.entitlements
+    ENABLE_PREVIEWS: true
+  configs:
+    Debug:
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+    Release:
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+      SWIFT_COMPILATION_MODE: wholemodule
+
+targets:
+  AuraLift:
+    type: application
+    platform: iOS
+    sources:
+      - path: AuraLift/App
+        group: App
+      - path: AuraLift/Core/Extensions
+        group: Core/Extensions
+      - path: AuraLift/Core/Persistence
+        group: Core/Persistence
+      - path: AuraLift/Core/Protocols
+        group: Core/Protocols
+      - path: AuraLift/Core/Theme
+        group: Core/Theme
+      - path: AuraLift/Models/CoreData
+        group: Models/CoreData
+      - path: AuraLift/Models/Enums
+        group: Models/Enums
+      - path: AuraLift/Services/AR
+        group: Services/AR
+      - path: AuraLift/Services/Audio
+        group: Services/Audio
+      - path: AuraLift/Services/BioAdaptive
+        group: Services/BioAdaptive
+      - path: AuraLift/Services/Camera
+        group: Services/Camera
+      - path: AuraLift/Services/HealthKit
+        group: Services/HealthKit
+      - path: AuraLift/Services/MorphoScanner
+        group: Services/MorphoScanner
+      - path: AuraLift/Services/Nutrition
+        group: Services/Nutrition
+      - path: AuraLift/Services/PoseAnalysis
+        group: Services/PoseAnalysis
+      - path: AuraLift/Services/Ranking
+        group: Services/Ranking
+      - path: AuraLift/Services/Science
+        group: Services/Science
+      - path: AuraLift/Services/Social
+        group: Services/Social
+      - path: AuraLift/Services/VelocityTracker
+        group: Services/VelocityTracker
+      - path: AuraLift/ViewModels
+        group: ViewModels
+      - path: AuraLift/Views/Components
+        group: Views/Components
+      - path: AuraLift/Views/Dashboard
+        group: Views/Dashboard
+      - path: AuraLift/Views/MorphoScan
+        group: Views/MorphoScan
+      - path: AuraLift/Views/Nutrition
+        group: Views/Nutrition
+      - path: AuraLift/Views/Profile
+        group: Views/Profile
+      - path: AuraLift/Views/Ranking
+        group: Views/Ranking
+      - path: AuraLift/Views/Recovery
+        group: Views/Recovery
+      - path: AuraLift/Views/Social
+        group: Views/Social
+      - path: AuraLift/Views/Workout
+        group: Views/Workout
+      - path: AuraLift/Resources/Assets.xcassets
+        type: folder
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.auralift.app
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: false
+    info:
+      path: AuraLift/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIRequiresFullScreen: true
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: AuraLift/AuraLift.entitlements
+    dependencies:
+      - framework: AVFoundation.framework
+        implicit: true
+      - framework: Vision.framework
+        implicit: true
+      - framework: CoreData.framework
+        implicit: true
+      - framework: HealthKit.framework
+        implicit: true
+      - framework: AVFAudio.framework
+        implicit: true
+
+schemes:
+  AuraLift:
+    build:
+      targets:
+        AuraLift: all
+    run:
+      config: Debug
+    archive:
+      config: Release
