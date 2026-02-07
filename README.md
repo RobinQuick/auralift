@@ -31,8 +31,8 @@ AuraLift uses your iPhone camera to analyze exercise form in real-time, measure 
 | 6.5 | Equipment & Brands (35 machines, 5 brands) | COMPLETE |
 | 7 | Recovery & BioAdaptive | COMPLETE |
 | 8 | Nutrition & Body Composition | COMPLETE |
-| 9 | Audio & Announcer | Pending |
-| 10 | AR & Social | Pending |
+| 9 | Audio & Announcer | COMPLETE |
+| 10 | AR & Social | COMPLETE |
 
 ## Tech Stack
 
