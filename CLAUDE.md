@@ -8,6 +8,14 @@
 **Description:** AI-driven iOS bodybuilding app combining Computer Vision pose estimation, biomechanical morpho-analysis, and e-sport gamification
 **Stack:** SwiftUI, CoreData (programmatic model), AVFoundation, Vision framework, HealthKit
 
+When generating UI text, labels, or dashboard content, use plain non-technical language suitable for executives (e.g., DSI). Avoid statistical jargon like MAPE, WMAPE unless explicitly requested.
+
+---
+
+## Business Logic & Calculations
+
+When implementing calculations or business logic, always ask me to confirm the formula BEFORE coding it. Show the formula in plain language with a concrete example (e.g., 'For a prediction of 80 and actual of 100, the score would be 80/100 = 80%'). Do not invent sophisticated statistical approaches when a simple one is requested.
+
 ---
 
 ## Code Style & Conventions
@@ -209,6 +217,18 @@ xcodebuild -scheme AuraLift -destination 'platform=iOS Simulator,name=iPhone 15 
 # This is an iOS project — no npm, no web server
 # Build and run through Xcode or xcodebuild
 ```
+
+---
+
+## Git & Version Control
+
+Before running `git push`, verify the current git remote URL and authenticated account match the intended repository. Run `git remote -v` and `gh auth status` first. If there's a mismatch, stop and tell me rather than retrying the push.
+
+---
+
+## Workflow Conventions
+
+For large multi-phase implementations: after generating files, provide a short summary checklist of what was created/modified with file paths. When a phase is complete, ask if I want to commit before moving to the next phase.
 
 ---
 

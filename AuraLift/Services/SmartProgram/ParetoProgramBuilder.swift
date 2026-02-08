@@ -3,19 +3,30 @@ import CoreData
 
 // MARK: - ParetoProgramBuilder
 
-/// Generates 12-week periodized programs using Pareto (20/80) volume allocation.
-/// Priority muscles get ~60% of weekly sets, maintenance muscles get ~40%.
+/// Generates 12-week periodized programs using strict Pareto (80/20) volume allocation.
+/// Priority muscles get ~80% of weekly sets, maintenance muscles get ~20%.
+/// Applies anti-bullshit filtering, machine intelligence, and morpho-specific swaps.
 final class ParetoProgramBuilder {
 
     // MARK: - Volume Config
 
     private struct VolumeConfig {
         let totalWeeklySets: Int
-        let prioritySetsRatio: Double // ~0.60
+        let prioritySetsRatio: Double // 0.80 = Pareto 80/20
         let maxSessionMinutes: Int
 
-        static let fullBody3 = VolumeConfig(totalWeeklySets: 18, prioritySetsRatio: 0.60, maxSessionMinutes: 60)
-        static let upperLower4 = VolumeConfig(totalWeeklySets: 24, prioritySetsRatio: 0.60, maxSessionMinutes: 60)
+        static let fullBody3 = VolumeConfig(totalWeeklySets: 18, prioritySetsRatio: 0.80, maxSessionMinutes: 60)
+        static let upperLower4 = VolumeConfig(totalWeeklySets: 24, prioritySetsRatio: 0.80, maxSessionMinutes: 60)
+    }
+
+    // MARK: - Morpho Context
+
+    /// Passed through exercise selection and Why message generation.
+    struct MorphoContext {
+        let morphotype: Morphotype?
+        let measurements: SegmentMeasurements?
+        let sex: String
+        let goal: AestheticGoal
     }
 
     // MARK: - Generate Program
@@ -41,28 +52,23 @@ final class ParetoProgramBuilder {
 
         let config = frequency == .fullBody3 ? VolumeConfig.fullBody3 : VolumeConfig.upperLower4
         let sex = userProfile.biologicalSex ?? "male"
+        let morphoCtx = MorphoContext(morphotype: morphotype, measurements: measurements, sex: sex, goal: aestheticGoal)
 
-        // Select exercises for priority and maintenance muscles
         let priorityExercises = selectExercises(
             for: aestheticGoal.priorityMuscles,
             priority: true,
             gymProfile: gymProfile,
-            morphotype: morphotype,
-            measurements: measurements,
-            sex: sex,
+            morphoCtx: morphoCtx,
             context: context
         )
         let maintenanceExercises = selectExercises(
             for: aestheticGoal.maintenanceMuscles,
             priority: false,
             gymProfile: gymProfile,
-            morphotype: morphotype,
-            measurements: measurements,
-            sex: sex,
+            morphoCtx: morphoCtx,
             context: context
         )
 
-        // Build 12 weeks
         let weeksMutable = NSMutableOrderedSet()
         for weekNum in 1...12 {
             let weekType = ProgramWeekType.type(for: weekNum)
@@ -74,7 +80,7 @@ final class ParetoProgramBuilder {
                 maintenanceExercises: maintenanceExercises,
                 config: config,
                 startDate: program.startDate,
-                userProfile: userProfile,
+                morphoCtx: morphoCtx,
                 context: context
             )
             week.trainingProgram = program
@@ -91,12 +97,12 @@ final class ParetoProgramBuilder {
         for muscles: [String],
         priority: Bool,
         gymProfile: GymProfile,
-        morphotype: Morphotype?,
-        measurements: SegmentMeasurements?,
-        sex: String,
+        morphoCtx: MorphoContext,
         context: NSManagedObjectContext
     ) -> [Exercise] {
         let equipment = gymProfile.equipmentList
+        let brands = gymProfile.brandList
+        let isHomeGym = isHomeGymOnly(equipment: equipment)
         var result: [Exercise] = []
 
         for muscle in muscles {
@@ -108,22 +114,51 @@ final class ParetoProgramBuilder {
                 continue
             }
 
-            // Filter by available equipment
-            let available = candidates.filter { ex in
+            // Step 1: Anti-bullshit filter
+            let filtered = applyAntiBullshitFilter(
+                candidates: candidates,
+                goal: morphoCtx.goal,
+                sex: morphoCtx.sex,
+                morphotype: morphoCtx.morphotype
+            )
+            guard !filtered.isEmpty else { continue }
+
+            // Step 2: Filter by available equipment
+            let available = filtered.filter { ex in
                 guard let eqType = ex.equipmentType else { return true }
                 return equipment.isEmpty || equipment.contains(eqType)
             }
+            guard !available.isEmpty else {
+                // Fallback: take first filtered candidate
+                if let first = filtered.first { result.append(first) }
+                continue
+            }
 
-            guard var chosen = available.first ?? candidates.first else { continue }
+            // Step 3: Machine intelligence — prefer branded machine if available
+            var chosen: Exercise
+            if let machineMatch = findBrandedMachine(
+                candidates: available,
+                brands: brands,
+                muscle: muscle,
+                context: context
+            ) {
+                chosen = machineMatch
+            } else if isHomeGym {
+                // Home gym: prefer dumbbell exercises
+                chosen = available.first { $0.equipmentType == "dumbbell" } ?? available[0]
+            } else {
+                chosen = available[0]
+            }
 
-            // Apply morpho-swap if applicable
-            if let morpho = morphotype, let measures = measurements {
+            // Step 4: Morpho-swap
+            if let morpho = morphoCtx.morphotype, let measures = morphoCtx.measurements {
                 if let swapped = morphoSwap(
                     exercise: chosen,
                     morphotype: morpho,
                     measurements: measures,
-                    sex: sex,
+                    sex: morphoCtx.sex,
                     availableEquipment: equipment,
+                    brands: brands,
                     context: context
                 ) {
                     chosen = swapped
@@ -132,17 +167,81 @@ final class ParetoProgramBuilder {
 
             result.append(chosen)
 
-            // For priority muscles, add a second exercise if available (stretch position preferred)
+            // Priority muscles: add a second exercise (stretch position preferred)
             if priority, available.count > 1 {
                 let second = available.first { $0.id != chosen.id && $0.stretchPositionBonus } ??
                              available.first { $0.id != chosen.id }
-                if let second {
-                    result.append(second)
-                }
+                if let second { result.append(second) }
             }
         }
 
         return result
+    }
+
+    // MARK: - Anti-Bullshit Filter
+
+    /// Removes useless exercises that waste time. Female-specific: ban heavy
+    /// oblique/rotation work (thickens waist) — prefer Vacuum and planking.
+    private func applyAntiBullshitFilter(
+        candidates: [Exercise],
+        goal: AestheticGoal,
+        sex: String,
+        morphotype: Morphotype?
+    ) -> [Exercise] {
+        let banned = goal.bannedExercises
+        let isFemale = sex.lowercased() == "female"
+
+        return candidates.filter { ex in
+            let name = ex.name.lowercased()
+
+            // Global banned list (shrugs, forearm isolation, etc.)
+            for ban in banned {
+                if name.contains(ban.lowercased()) { return false }
+            }
+
+            // Female-specific: ban heavy oblique/rotation movements
+            if isFemale {
+                let waistThickeners = ["oblique", "rotation", "woodchop", "side bend"]
+                for term in waistThickeners {
+                    if name.contains(term) { return false }
+                }
+            }
+
+            return true
+        }
+    }
+
+    // MARK: - Machine Intelligence
+
+    /// If a branded machine (e.g. Pure Kraft Shoulder Press) targets the same muscle,
+    /// prefer it over the barbell equivalent (better force curve, guided motion).
+    private func findBrandedMachine(
+        candidates: [Exercise],
+        brands: [String],
+        muscle: String,
+        context: NSManagedObjectContext
+    ) -> Exercise? {
+        guard !brands.isEmpty else { return nil }
+
+        // Look for machine exercises that have a linked MachineSpec with a matching brand
+        for candidate in candidates {
+            guard candidate.equipmentType == "machine" else { continue }
+
+            // Check if this exercise has a MachineSpec with one of our gym's brands
+            let specRequest = NSFetchRequest<NSManagedObject>(entityName: "MachineSpec")
+            specRequest.predicate = NSPredicate(format: "exercise == %@", candidate)
+            specRequest.fetchLimit = 1
+
+            guard let spec = try? context.fetch(specRequest).first,
+                  let brand = spec.value(forKey: "brand") as? String,
+                  brands.contains(where: { $0.lowercased() == brand.lowercased() }) else {
+                continue
+            }
+
+            return candidate
+        }
+
+        return nil
     }
 
     // MARK: - Morpho Swap
@@ -153,40 +252,83 @@ final class ParetoProgramBuilder {
         measurements: SegmentMeasurements,
         sex: String,
         availableEquipment: [String],
+        brands: [String],
         context: NSManagedObjectContext
     ) -> Exercise? {
         let name = exercise.name.lowercased()
 
-        // Long arms → Barbell Bench → DB Bench or converging machine
+        // Long arms → ban Barbell Bench → DB Bench (better amplitude + safety)
         if (morphotype == .longArms || morphotype == .longLimbed),
-           name.contains("barbell bench") || name.contains("bench press") {
+           name.contains("barbell bench") || (name.contains("bench press") && !name.contains("dumbbell")) {
             return findAlternative(
                 primaryMuscle: exercise.primaryMuscle ?? "Chest",
                 preferredEquipment: ["dumbbell", "machine"],
+                preferredNames: ["dumbbell bench", "db bench", "incline db"],
                 availableEquipment: availableEquipment,
                 excluding: exercise.id,
                 context: context
             )
         }
 
-        // Short torso → Heavy Squat → Hip Thrust + RDL priority
-        if morphotype == .shortTorso,
-           name.contains("squat") && !name.contains("front") {
+        // Long arms → Military Press barbell is risky → prefer DB OHP or machine
+        if (morphotype == .longArms || morphotype == .longLimbed),
+           name.contains("military press") || name.contains("overhead press barbell") {
             return findAlternative(
-                primaryMuscle: "Glutes",
-                preferredEquipment: availableEquipment,
+                primaryMuscle: exercise.primaryMuscle ?? "Shoulders",
+                preferredEquipment: ["dumbbell", "machine"],
+                preferredNames: ["dumbbell shoulder", "db overhead", "shoulder press machine"],
                 availableEquipment: availableEquipment,
                 excluding: exercise.id,
                 context: context
             )
         }
 
-        // Long femurs → Back Squat → Front Squat or Leg Press
-        if morphotype == .longLimbed || (measurements.femurToTorsoRatio > 0.55),
+        // Long femurs → ban full Back Squat → Leg Press or Bulgarian Split Squat
+        if morphotype == .longLimbed || measurements.femurToTorsoRatio > 0.55,
            name.contains("back squat") || name == "squat" {
             return findAlternative(
                 primaryMuscle: exercise.primaryMuscle ?? "Quads",
-                preferredEquipment: ["machine", "barbell"],
+                preferredEquipment: ["machine", "dumbbell"],
+                preferredNames: ["leg press", "bulgarian", "split squat", "front squat"],
+                availableEquipment: availableEquipment,
+                excluding: exercise.id,
+                context: context
+            )
+        }
+
+        // Short torso → Heavy Squat → Hip Thrust / RDL priority
+        if morphotype == .shortTorso,
+           name.contains("squat") && !name.contains("front") && !name.contains("split") {
+            return findAlternative(
+                primaryMuscle: "Glutes",
+                preferredEquipment: availableEquipment,
+                preferredNames: ["hip thrust", "rdl", "romanian"],
+                availableEquipment: availableEquipment,
+                excluding: exercise.id,
+                context: context
+            )
+        }
+
+        // Long torso → Deadlift with high injury risk → Trap Bar or RDL
+        if morphotype == .longTorso,
+           name.contains("deadlift") && !name.contains("romanian") && !name.contains("rdl") {
+            return findAlternative(
+                primaryMuscle: exercise.primaryMuscle ?? "Hamstrings",
+                preferredEquipment: availableEquipment,
+                preferredNames: ["trap bar", "rdl", "romanian deadlift"],
+                availableEquipment: availableEquipment,
+                excluding: exercise.id,
+                context: context
+            )
+        }
+
+        // Short arms → Dips can be awkward → prefer Machine Chest Press
+        if morphotype == .shortArms,
+           name.contains("dip") {
+            return findAlternative(
+                primaryMuscle: exercise.primaryMuscle ?? "Chest",
+                preferredEquipment: ["machine", "cable"],
+                preferredNames: ["chest press", "cable fly"],
                 availableEquipment: availableEquipment,
                 excluding: exercise.id,
                 context: context
@@ -206,7 +348,7 @@ final class ParetoProgramBuilder {
         maintenanceExercises: [Exercise],
         config: VolumeConfig,
         startDate: Date,
-        userProfile: UserProfile,
+        morphoCtx: MorphoContext,
         context: NSManagedObjectContext
     ) -> ProgramWeek {
         let week = ProgramWeek(context: context)
@@ -238,7 +380,7 @@ final class ParetoProgramBuilder {
                     maintenanceExercises: maintenanceExercises,
                     weekType: weekType,
                     config: config,
-                    userProfile: userProfile,
+                    morphoCtx: morphoCtx,
                     context: context
                 )
                 let exMutable = NSMutableOrderedSet()
@@ -267,7 +409,7 @@ final class ParetoProgramBuilder {
         maintenanceExercises: [Exercise],
         weekType: ProgramWeekType,
         config: VolumeConfig,
-        userProfile: UserProfile,
+        morphoCtx: MorphoContext,
         context: NSManagedObjectContext
     ) -> [ProgramExercise] {
         var result: [ProgramExercise] = []
@@ -275,7 +417,7 @@ final class ParetoProgramBuilder {
         let prioritySets = Int(Double(setsPerSession) * config.prioritySetsRatio)
         let maintenanceSets = setsPerSession - prioritySets
 
-        // Distribute priority exercises
+        // Priority exercises: 80% of volume
         let pExercises = distributeForDay(dayIndex: dayIndex, exercises: priorityExercises, frequency: frequency)
         for exercise in pExercises {
             let setsEach = max(2, prioritySets / max(1, pExercises.count))
@@ -284,12 +426,13 @@ final class ParetoProgramBuilder {
                 sets: setsEach,
                 weekType: weekType,
                 isPriority: true,
+                morphoCtx: morphoCtx,
                 context: context
             )
             result.append(progEx)
         }
 
-        // Distribute maintenance exercises
+        // Maintenance exercises: 20% of volume
         let mExercises = distributeForDay(dayIndex: dayIndex, exercises: maintenanceExercises, frequency: frequency)
         for exercise in mExercises {
             let setsEach = max(2, maintenanceSets / max(1, mExercises.count))
@@ -298,6 +441,7 @@ final class ParetoProgramBuilder {
                 sets: setsEach,
                 weekType: weekType,
                 isPriority: false,
+                morphoCtx: morphoCtx,
                 context: context
             )
             result.append(progEx)
@@ -311,7 +455,6 @@ final class ParetoProgramBuilder {
 
         switch frequency {
         case .fullBody3:
-            // Full body: rotate through exercises across the 3 training days
             let trainIdx = frequency.trainingDayIndices.firstIndex(of: dayIndex) ?? 0
             let perDay = max(1, exercises.count / 3)
             let start = trainIdx * perDay
@@ -320,7 +463,6 @@ final class ParetoProgramBuilder {
             return Array(exercises[start..<end])
 
         case .upperLower4:
-            // Upper/Lower: split by muscle region
             let trainIdx = frequency.trainingDayIndices.firstIndex(of: dayIndex) ?? 0
             let isUpper = trainIdx % 2 == 0
             let filtered = exercises.filter { ex in
@@ -341,6 +483,7 @@ final class ParetoProgramBuilder {
         sets: Int,
         weekType: ProgramWeekType,
         isPriority: Bool,
+        morphoCtx: MorphoContext,
         context: NSManagedObjectContext
     ) -> ProgramExercise {
         let progEx = ProgramExercise(context: context)
@@ -352,28 +495,132 @@ final class ParetoProgramBuilder {
         progEx.restSeconds = isPriority ? 120 : 90
         progEx.tempoDescription = weekType == .deload ? "4-1-2" : "3-1-2"
 
-        // Generate "Why" message
-        progEx.whyMessage = generateWhyMessage(exercise: exercise, isPriority: isPriority, weekType: weekType)
-        progEx.priorityReason = isPriority ? "Priority muscle for your aesthetic goal" : nil
+        // Morpho-specific "Why" message
+        progEx.whyMessage = generateWhyMessage(
+            exercise: exercise,
+            isPriority: isPriority,
+            weekType: weekType,
+            morphoCtx: morphoCtx
+        )
+        progEx.priorityReason = isPriority ? priorityReason(for: exercise, goal: morphoCtx.goal) : nil
 
         return progEx
     }
 
-    private func generateWhyMessage(exercise: Exercise, isPriority: Bool, weekType: ProgramWeekType) -> String {
+    // MARK: - Morpho-Specific Why Messages
+
+    private func generateWhyMessage(
+        exercise: Exercise,
+        isPriority: Bool,
+        weekType: ProgramWeekType,
+        morphoCtx: MorphoContext
+    ) -> String {
         let muscle = exercise.primaryMuscle ?? "this muscle"
+        let name = exercise.name
+        let equipType = exercise.equipmentType ?? "bodyweight"
+
+        // Build morpho-specific explanation
+        var morphoNote = ""
+
+        if let morpho = morphoCtx.morphotype, let measures = morphoCtx.measurements {
+            morphoNote = morphoExplanation(
+                exerciseName: name,
+                equipmentType: equipType,
+                muscle: muscle,
+                morphotype: morpho,
+                measurements: measures,
+                sex: morphoCtx.sex
+            )
+        }
+
+        // Phase-specific base message
+        let phaseMessage: String
         if isPriority {
             switch weekType {
             case .ramp:
-                return "Ramp-up: learning the movement at lighter loads for \(muscle)."
+                phaseMessage = "\(muscle) is a priority. Ramp-up phase: learning the movement at lighter loads."
             case .normal:
-                return "Priority: \(muscle) gets extra volume for maximum growth."
+                phaseMessage = "\(muscle) gets 80% volume priority — maximum growth stimulus."
             case .overload:
-                return "Overload phase: pushing \(muscle) beyond normal capacity."
+                phaseMessage = "Overload phase: pushing \(muscle) beyond normal capacity for adaptation."
             case .deload:
-                return "Recovery week: light work to maintain \(muscle) without fatigue."
+                phaseMessage = "Recovery week: light work to maintain \(muscle) without accumulating fatigue."
+            }
+        } else {
+            phaseMessage = "Maintenance volume for \(muscle) — preserving balance with minimal sets (20%)."
+        }
+
+        if morphoNote.isEmpty {
+            return phaseMessage
+        }
+        return "\(morphoNote) \(phaseMessage)"
+    }
+
+    /// Generates a morpho-specific explanation for why THIS exercise was chosen.
+    private func morphoExplanation(
+        exerciseName: String,
+        equipmentType: String,
+        muscle: String,
+        morphotype: Morphotype,
+        measurements: SegmentMeasurements,
+        sex: String
+    ) -> String {
+        let name = exerciseName.lowercased()
+
+        // DB Bench chosen because of long arms
+        if (morphotype == .longArms || morphotype == .longLimbed),
+           name.contains("dumbbell") && name.contains("bench") {
+            return "Dumbbells chosen because your long arms get better chest stretch and safer range of motion than a barbell."
+        }
+
+        // Leg Press / Bulgarian chosen because of long femurs
+        if measurements.femurToTorsoRatio > 0.55 {
+            if name.contains("leg press") {
+                return "Leg press selected because your long femurs make deep squats risky for your lower back."
+            }
+            if name.contains("bulgarian") || name.contains("split squat") {
+                return "Bulgarian split squat chosen — your long femurs benefit from the unilateral stance and reduced spinal load."
             }
         }
-        return "Maintenance volume for \(muscle) to preserve balance."
+
+        // Hip Thrust for short torso
+        if morphotype == .shortTorso, name.contains("hip thrust") {
+            return "Hip thrust prioritized — your short torso makes heavy squats less efficient for glute activation."
+        }
+
+        // Machine selected because brand is available
+        if equipmentType == "machine" {
+            return "Machine selected for its guided force curve — ideal for controlled hypertrophy."
+        }
+
+        // Wide clavicles + incline work
+        if measurements.shoulderToHipRatio > 1.4, name.contains("incline") {
+            return "Incline chosen because your wide clavicles benefit from upper chest focus to enhance the V-taper."
+        }
+
+        // Narrow hips + lateral raise
+        if measurements.shoulderToHipRatio < 1.3, name.contains("lateral") {
+            return "Lateral raises prioritized — widening your delts to improve your shoulder-to-hip ratio."
+        }
+
+        return ""
+    }
+
+    /// Returns a morpho-aware priority reason string.
+    private func priorityReason(for exercise: Exercise, goal: AestheticGoal) -> String {
+        let muscle = exercise.primaryMuscle ?? ""
+        switch goal {
+        case .greekMale:
+            if muscle.lowercased().contains("delt") { return "V-taper: wide shoulders are the #1 Pareto lever." }
+            if muscle.lowercased().contains("chest") { return "Upper chest creates the armored plate look." }
+            if muscle.lowercased().contains("lat") { return "Lats widen your back for the V-taper silhouette." }
+            return "Priority muscle for the Greek Statue aesthetic."
+        case .hourglassFemale:
+            if muscle.lowercased().contains("glute") { return "Glutes are the #1 driver of the hourglass shape." }
+            if muscle.lowercased().contains("hamstring") { return "Hamstrings define the posterior curve." }
+            if muscle.lowercased().contains("quad") { return "Quads create leg definition and balance." }
+            return "Priority muscle for the Hourglass aesthetic."
+        }
     }
 
     // MARK: - Session Duration Estimate
@@ -392,9 +639,16 @@ final class ParetoProgramBuilder {
 
     // MARK: - Helpers
 
+    private func isHomeGymOnly(equipment: [String]) -> Bool {
+        guard !equipment.isEmpty else { return false }
+        let homeEquip: Set<String> = ["dumbbell", "band", "kettlebell", "bodyweight"]
+        return equipment.allSatisfy { homeEquip.contains($0.lowercased()) }
+    }
+
     private func findAlternative(
         primaryMuscle: String,
         preferredEquipment: [String],
+        preferredNames: [String],
         availableEquipment: [String],
         excluding: UUID,
         context: NSManagedObjectContext
@@ -405,14 +659,24 @@ final class ParetoProgramBuilder {
 
         guard let candidates = try? context.fetch(request) else { return nil }
 
-        // Prefer equipment match
+        // First: try to match by preferred name keywords
+        for preferred in preferredNames {
+            if let match = candidates.first(where: {
+                $0.name.lowercased().contains(preferred.lowercased()) &&
+                (availableEquipment.isEmpty || availableEquipment.contains($0.equipmentType ?? ""))
+            }) {
+                return match
+            }
+        }
+
+        // Second: match by preferred equipment type
         for eq in preferredEquipment {
             if let match = candidates.first(where: { $0.equipmentType == eq }) {
                 return match
             }
         }
 
-        // Fallback to anything available
+        // Fallback: anything available
         let available = candidates.filter { ex in
             guard let eqType = ex.equipmentType else { return true }
             return availableEquipment.isEmpty || availableEquipment.contains(eqType)
@@ -424,7 +688,6 @@ final class ParetoProgramBuilder {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let weekday = calendar.component(.weekday, from: today)
-        // weekday: 1=Sunday, 2=Monday, ...
         let daysUntilMonday = weekday == 2 ? 7 : ((9 - weekday) % 7)
         return calendar.date(byAdding: .day, value: daysUntilMonday, to: today) ?? today
     }

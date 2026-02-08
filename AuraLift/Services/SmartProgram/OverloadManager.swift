@@ -189,32 +189,42 @@ final class OverloadManager {
         targetRPE: Double,
         currentWeight: Double
     ) -> (Double, String, OverloadDecision.ConfidenceLevel) {
-        // Hypertrophy sweet spot: 0.5-0.75 m/s
-        let inHypertrophyZone = avgVelocity >= 0.5 && avgVelocity <= 0.75
+        // Neo-Coach VBT thresholds:
+        // > 0.65 m/s = too easy → increase load +2.5 kg (or +1 rep)
+        // 0.35–0.65 m/s = hypertrophy sweet spot → maintain or fine-tune
+        // < 0.35 m/s = near failure → maintain or technique deload
 
-        if inHypertrophyZone && avgRPE < 8.0 {
-            // Room for progression
-            return (2.5, "Good velocity + low RPE — room for progression.", .high)
+        if avgVelocity > 0.65 {
+            // Too easy — increase
+            if avgRPE < 7.0 {
+                return (5.0, "Velocity too high + low RPE — significant room for progression.", .high)
+            }
+            return (2.5, "Velocity > 0.65 m/s — load is too easy, increasing +2.5 kg.", .high)
         }
 
-        if inHypertrophyZone && avgRPE >= 8.0 && avgRPE <= 9.0 {
-            // Right on target
-            return (0, "Right on target — maintaining current load.", .high)
+        if avgVelocity >= 0.35 && avgVelocity <= 0.65 {
+            // Hypertrophy sweet spot
+            if avgRPE < 7.5 {
+                return (2.5, "In hypertrophy zone with low RPE — small progression +2.5 kg.", .high)
+            }
+            if avgRPE <= 9.0 {
+                return (0, "Right in the hypertrophy zone — maintaining current load.", .high)
+            }
+            // RPE > 9 but velocity still OK
+            return (0, "RPE high but velocity OK — maintaining load, monitor recovery.", .medium)
         }
 
-        if avgVelocity < 0.5 && avgRPE >= 9.0 {
-            // Too heavy
-            return (-2.5, "Too heavy — reducing to maintain movement quality.", .high)
-        }
-
-        if avgVelocity > 0.75 {
-            // Too light for hypertrophy
-            return (5.0, "Too light for hypertrophy zone — increasing load.", .medium)
+        if avgVelocity < 0.35 {
+            // Near failure zone
+            if avgRPE >= 9.0 {
+                return (-2.5, "Near failure (velocity < 0.35 m/s, RPE 9+) — reducing load to maintain quality.", .high)
+            }
+            return (0, "Low velocity but RPE manageable — maintaining, focus on technique.", .medium)
         }
 
         // Fatigue check
         if avgVelLoss > 0.20 {
-            return (-2.5, "High fatigue detected — reducing to aid recovery.", .medium)
+            return (-2.5, "High fatigue detected (velocity loss > 20%) — reducing to aid recovery.", .medium)
         }
 
         // Default: small increase if RPE allows

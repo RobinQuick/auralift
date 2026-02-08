@@ -576,22 +576,29 @@ struct WorkoutLiveView: View {
         .auraBackground()
     }
 
-    // MARK: - Technique Mode Banner
+    // MARK: - Technique / Volume Mode Banner
 
     private var techniqueModeBanner: some View {
-        VStack {
-            HStack(spacing: AuraTheme.Spacing.sm) {
-                Image(systemName: "gauge.with.dots.needle.0percent")
-                    .font(.system(size: 16))
-                    .foregroundColor(.cyberOrange)
+        let isVolume = viewModel.sessionMode == .volume
+        let bannerColor: Color = isVolume ? .neonPurple : .cyberOrange
+        let bannerIcon = isVolume ? "arrow.down.heart.fill" : "gauge.with.dots.needle.0percent"
+        let bannerText = isVolume
+            ? "VOLUME MODE — -20% load, +2 reps"
+            : "TECHNIQUE MODE — Lighter load, slower tempo"
 
-                Text("TECHNIQUE MODE — Lighter load, slower tempo")
+        return VStack {
+            HStack(spacing: AuraTheme.Spacing.sm) {
+                Image(systemName: bannerIcon)
+                    .font(.system(size: 16))
+                    .foregroundColor(bannerColor)
+
+                Text(bannerText)
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
-                    .foregroundColor(.cyberOrange)
+                    .foregroundColor(bannerColor)
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)
             .padding(.vertical, AuraTheme.Spacing.sm)
-            .background(Color.cyberOrange.opacity(0.15))
+            .background(bannerColor.opacity(0.15))
             .cornerRadius(AuraTheme.Radius.small)
             .padding(.top, 60)
 

@@ -782,10 +782,10 @@ class WorkoutViewModel: ObservableObject {
         }
     }
 
-    /// Applies technique mode — reduces weights by adaptation percentage.
+    /// Applies session adaptation — adjusts weights and mode (technique/volume).
     func applyTechniqueMode(_ adaptation: SessionAdaptation) {
         sessionMode = adaptation.mode
-        showTechniqueModeBanner = adaptation.mode == .technique
+        showTechniqueModeBanner = adaptation.mode == .technique || adaptation.mode == .volume
 
         // Reduce weight for current exercise
         if adaptation.weightReduction > 0 {

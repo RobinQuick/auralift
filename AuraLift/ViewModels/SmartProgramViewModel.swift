@@ -42,6 +42,11 @@ final class SmartProgramViewModel: ObservableObject {
 
     @Published var todayMacros: MacroTargets?
     @Published var trainingDayType: TrainingDayType = .rest
+    @Published var nutritionDayLabel: String = "Rest — Low Carb, High Fat"
+
+    // MARK: - Supplement Checklist State
+
+    @Published var todaySupplements: [SupplementCheckItem] = []
 
     // MARK: - Prediction State
 
@@ -107,15 +112,20 @@ final class SmartProgramViewModel: ObservableObject {
         // Load gym profiles
         loadGymProfiles()
 
-        // Determine training day type for nutrition
+        // Determine training day type for nutrition (ON/OFF system)
         if todayDay?.isRestDay == true || todayDay == nil {
             trainingDayType = .rest
+            nutritionDayLabel = "OFF — Low Carb, High Fat"
         } else {
             trainingDayType = todayExercises.count >= 5 ? .intense : .moderate
+            nutritionDayLabel = "ON — High Carb"
         }
 
         // Load nutrition sync
         loadTodayMacros()
+
+        // Load supplement checklist
+        loadSupplementChecklist()
 
         // Calculate waist prediction
         calculateWaistPrediction()
@@ -351,6 +361,21 @@ final class SmartProgramViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Supplement Checklist
+
+    func loadSupplementChecklist() {
+        todaySupplements = [
+            SupplementCheckItem(name: "Creatine", dosage: "5g", timing: "Any time"),
+            SupplementCheckItem(name: "Whey Protein", dosage: "25-40g", timing: "Post-workout"),
+            SupplementCheckItem(name: "Vitamin D3", dosage: "4000 IU", timing: "With meal")
+        ]
+    }
+
+    func toggleSupplement(_ item: SupplementCheckItem) {
+        guard let idx = todaySupplements.firstIndex(where: { $0.id == item.id }) else { return }
+        todaySupplements[idx].isChecked.toggle()
+    }
+
     // MARK: - Morpho Data Loader
 
     private func loadLatestMorphoData() -> (Morphotype?, SegmentMeasurements?) {
@@ -411,6 +436,17 @@ final class SmartProgramViewModel: ObservableObject {
             context.rollback()
         }
     }
+}
+
+// MARK: - SupplementCheckItem
+
+/// Daily supplement checklist item (Creatine, Whey, etc.).
+struct SupplementCheckItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let dosage: String
+    let timing: String
+    var isChecked: Bool = false
 }
 
 // MARK: - UserProfile Age Helper

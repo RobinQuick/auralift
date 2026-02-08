@@ -87,7 +87,7 @@ enum AestheticGoal: String, CaseIterable, Codable {
         }
     }
 
-    /// Priority muscles receiving ~60% of total weekly volume.
+    /// Priority muscles receiving ~80% of total weekly volume (Pareto 20/80).
     var priorityMuscles: [String] {
         switch self {
         case .greekMale:
@@ -97,13 +97,25 @@ enum AestheticGoal: String, CaseIterable, Codable {
         }
     }
 
-    /// Maintenance muscles receiving ~40% of total weekly volume.
+    /// Maintenance muscles receiving ~20% of total weekly volume (Pareto 20/80).
     var maintenanceMuscles: [String] {
         switch self {
         case .greekMale:
             return ["Quads", "Hamstrings", "Glutes", "Biceps", "Triceps", "Chest"]
         case .hourglassFemale:
             return ["Chest", "Triceps", "Biceps", "Calves", "Core"]
+        }
+    }
+
+    /// Exercises that should NEVER be programmed unless a morpho deficit is detected.
+    /// Anti-bullshit rule: no useless exercises that waste time.
+    var bannedExercises: [String] {
+        switch self {
+        case .greekMale:
+            return ["shrug", "forearm curl", "wrist curl", "neck curl"]
+        case .hourglassFemale:
+            return ["shrug", "forearm curl", "wrist curl", "neck curl",
+                    "russian twist", "cable woodchop", "oblique crunch"]
         }
     }
 }
@@ -171,11 +183,13 @@ enum ProgramWeekType: String, CaseIterable, Codable {
 enum SessionMode: String, Codable {
     case normal = "normal"
     case technique = "technique"
+    case volume = "volume"
 
     var displayName: String {
         switch self {
         case .normal: return "Normal"
         case .technique: return "Technique"
+        case .volume: return "Volume Mode"
         }
     }
 
@@ -183,6 +197,7 @@ enum SessionMode: String, Codable {
         switch self {
         case .normal: return "Standard training intensity"
         case .technique: return "Lighter weights, slower tempo, focus on form"
+        case .volume: return "Reduced load (-20%), +2 reps for recovery"
         }
     }
 
@@ -190,6 +205,7 @@ enum SessionMode: String, Codable {
         switch self {
         case .normal: return .neonGreen
         case .technique: return .cyberOrange
+        case .volume: return .neonPurple
         }
     }
 }

@@ -26,12 +26,21 @@ struct ExerciseSwapSuggestion: Identifiable {
 /// Real-time session modification when recovery is low.
 struct SessionAdaptation {
     let mode: SessionMode
-    let weightReduction: Double // 0.3 = -30%
+    let weightReduction: Double // 0.20 = -20%
+    let repAdjustment: Int // +2 reps in volume mode
     let tempoAdjustment: String
     let whyMessage: String
 
     var adjustedWeight: (Double) -> Double {
         { original in original * (1.0 - self.weightReduction) }
+    }
+
+    /// Adjusts a rep range string (e.g. "8-12" → "10-14" with +2 adjustment).
+    func adjustedReps(_ originalReps: String) -> String {
+        guard repAdjustment > 0 else { return originalReps }
+        let parts = originalReps.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 2 else { return originalReps }
+        return "\(parts[0] + repAdjustment)-\(parts[1] + repAdjustment)"
     }
 }
 
@@ -90,6 +99,13 @@ final class LiveSessionAdapter {
                 score += 10
             }
 
+            // Prefer same resistance profile (biomechanical matching)
+            if let origProfile = exercise.value(forKey: "resistanceProfile") as? String,
+               let candProfile = candidate.value(forKey: "resistanceProfile") as? String,
+               origProfile == candProfile {
+                score += 12
+            }
+
             // Morpho fit
             let morphoFit = evaluateMorphoFit(candidate, measurements: measurements)
             switch morphoFit {
@@ -124,6 +140,7 @@ final class LiveSessionAdapter {
     // MARK: - Auto-Reg Check
 
     /// Checks if the session should be adapted based on readiness.
+    /// Neo-Coach auto-reg: <35% → Volume Mode (-20% load, +2 reps).
     func checkAutoReg(
         readinessScore: Double,
         cyclePhase: CyclePhase?,
@@ -131,19 +148,23 @@ final class LiveSessionAdapter {
     ) -> SessionAdaptation? {
         guard !deload else { return nil }
 
-        if readinessScore < 40 {
+        // Critical recovery: Volume Mode — reduce load, increase reps for blood flow
+        if readinessScore < 35 {
             return SessionAdaptation(
-                mode: .technique,
-                weightReduction: 0.30,
-                tempoAdjustment: "4-2-2",
-                whyMessage: "Recovery score is low (\(Int(readinessScore))%). Switching to technique mode — lighter weights, slower tempo, focus on form quality."
+                mode: .volume,
+                weightReduction: 0.20,
+                repAdjustment: 2,
+                tempoAdjustment: "3-1-2",
+                whyMessage: "Recovery is critically low (\(Int(readinessScore))%). Volume mode: -20% load, +2 reps — stimulate recovery through blood flow without heavy stress."
             )
         }
 
+        // Low recovery: moderate reduction
         if readinessScore < 60 {
             return SessionAdaptation(
                 mode: .normal,
                 weightReduction: 0.15,
+                repAdjustment: 0,
                 tempoAdjustment: "3-1-2",
                 whyMessage: "Recovery below average (\(Int(readinessScore))%). Reducing loads by 15% to maintain quality."
             )
@@ -154,8 +175,9 @@ final class LiveSessionAdapter {
             return SessionAdaptation(
                 mode: .normal,
                 weightReduction: 0.10,
+                repAdjustment: 1,
                 tempoAdjustment: "3-1-2",
-                whyMessage: "Luteal phase detected — slight load reduction for comfort and recovery."
+                whyMessage: "Luteal phase detected — slight load reduction, +1 rep for comfort and recovery."
             )
         }
 

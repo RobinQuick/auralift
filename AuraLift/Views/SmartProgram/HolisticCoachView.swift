@@ -4,7 +4,7 @@ import CoreData
 // MARK: - HolisticCoachView
 
 /// Main weekly dashboard for the Pareto Aesthetic Engine.
-/// Shows program progress, today's session, nutrition sync, and predictions.
+/// Shows program progress, today's session, nutrition ON/OFF, supplements, and predictions.
 struct HolisticCoachView: View {
     @StateObject private var viewModel: SmartProgramViewModel
     @Environment(\.managedObjectContext) private var viewContext
@@ -16,10 +16,8 @@ struct HolisticCoachView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: AuraTheme.Spacing.xl) {
-                // Program header
                 programHeader
 
-                // Week day strip
                 if !viewModel.weekDays.isEmpty {
                     WeekDayStripView(
                         days: viewModel.weekDays,
@@ -28,18 +26,16 @@ struct HolisticCoachView: View {
                     .padding(.horizontal, AuraTheme.Spacing.lg)
                 }
 
-                // Session adaptation banner
                 if let adaptation = viewModel.sessionAdaptation {
                     adaptationBanner(adaptation)
                 }
 
-                // Today's session
                 todaySessionSection
 
-                // Nutrition sync
                 nutritionCard
 
-                // Prediction card
+                supplementChecklist
+
                 if !viewModel.waistPrediction.isEmpty {
                     predictionCard
                 }
@@ -80,7 +76,6 @@ struct HolisticCoachView: View {
                     .foregroundColor(.auraTextPrimary)
 
                 HStack(spacing: AuraTheme.Spacing.md) {
-                    // Week badge
                     HStack(spacing: AuraTheme.Spacing.xs) {
                         Image(systemName: "calendar")
                             .font(.system(size: 12))
@@ -89,7 +84,6 @@ struct HolisticCoachView: View {
                     }
                     .foregroundColor(.neonBlue)
 
-                    // Week type badge
                     if let week = viewModel.currentWeek {
                         Text(week.parsedWeekType.displayName.uppercased())
                             .font(.system(size: 10, weight: .black, design: .monospaced))
@@ -99,7 +93,6 @@ struct HolisticCoachView: View {
                             .background(Capsule().fill(week.parsedWeekType.badgeColor))
                     }
 
-                    // Goal badge
                     Text(program.parsedGoal.displayName)
                         .font(.system(size: 10, weight: .bold))
                         .foregroundColor(program.parsedGoal.accentColor)
@@ -187,20 +180,26 @@ struct HolisticCoachView: View {
     // MARK: - Adaptation Banner
 
     private func adaptationBanner(_ adaptation: SessionAdaptation) -> some View {
-        HStack(spacing: AuraTheme.Spacing.sm) {
-            Image(systemName: adaptation.mode == .technique ? "gauge.with.dots.needle.0percent" : "exclamationmark.triangle.fill")
+        let isVolume = adaptation.mode == .volume
+        let isTechnique = adaptation.mode == .technique
+        let bannerColor: Color = isVolume ? .neonPurple : (isTechnique ? .cyberOrange : .neonRed)
+        let bannerIcon = isVolume ? "arrow.down.heart.fill" : (isTechnique ? "gauge.with.dots.needle.0percent" : "exclamationmark.triangle.fill")
+        let bannerTitle = isVolume ? "VOLUME MODE" : (isTechnique ? "TECHNIQUE MODE" : "LOAD ADJUSTED")
+
+        return HStack(spacing: AuraTheme.Spacing.sm) {
+            Image(systemName: bannerIcon)
                 .font(.system(size: 18))
-                .foregroundColor(adaptation.mode == .technique ? .cyberOrange : .neonRed)
+                .foregroundColor(bannerColor)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(adaptation.mode == .technique ? "TECHNIQUE MODE" : "LOAD ADJUSTED")
+                Text(bannerTitle)
                     .font(.system(size: 11, weight: .black, design: .monospaced))
-                    .foregroundColor(adaptation.mode == .technique ? .cyberOrange : .neonRed)
+                    .foregroundColor(bannerColor)
 
                 Text(adaptation.whyMessage)
                     .font(AuraTheme.Fonts.caption())
                     .foregroundColor(.auraTextSecondary)
-                    .lineLimit(2)
+                    .lineLimit(3)
             }
 
             Spacer()
@@ -208,12 +207,12 @@ struct HolisticCoachView: View {
         .darkCard()
         .overlay(
             RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
-                .stroke(Color.cyberOrange.opacity(0.3), lineWidth: 1)
+                .stroke(bannerColor.opacity(0.3), lineWidth: 1)
         )
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
-    // MARK: - Nutrition Card
+    // MARK: - Nutrition Card (ON/OFF System)
 
     private var nutritionCard: some View {
         VStack(alignment: .leading, spacing: AuraTheme.Spacing.sm) {
@@ -223,17 +222,28 @@ struct HolisticCoachView: View {
 
                 Spacer()
 
-                Text(viewModel.trainingDayType.rawValue.uppercased())
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
-                    .foregroundColor(.neonGreen)
+                // ON/OFF day label
+                Text(viewModel.nutritionDayLabel.uppercased())
+                    .font(.system(size: 9, weight: .black, design: .monospaced))
+                    .foregroundColor(viewModel.trainingDayType == .rest ? .neonPurple : .neonGreen)
             }
 
             if let macros = viewModel.todayMacros {
+                // Calorie target with ON/OFF context
+                HStack(spacing: AuraTheme.Spacing.xs) {
+                    Text("\(Int(macros.calories))")
+                        .font(AuraTheme.Fonts.statValue(22))
+                        .foregroundColor(.neonBlue)
+                    Text("kcal")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(.auraTextSecondary)
+                }
+
                 HStack(spacing: AuraTheme.Spacing.md) {
-                    macroCircle(value: Int(macros.calories), label: "kcal", color: .neonBlue)
                     macroCircle(value: Int(macros.proteinGrams), label: "P (g)", color: .neonGreen)
                     macroCircle(value: Int(macros.carbsGrams), label: "C (g)", color: .cyberOrange)
                     macroCircle(value: Int(macros.fatGrams), label: "F (g)", color: .neonPurple)
+                    macroCircle(value: Int(macros.waterLiters * 1000), label: "H2O (ml)", color: .neonBlue)
                 }
             } else {
                 Text("Complete your profile to see nutrition targets.")
@@ -256,6 +266,52 @@ struct HolisticCoachView: View {
                 .foregroundColor(.auraTextSecondary)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Supplement Checklist
+
+    private var supplementChecklist: some View {
+        VStack(alignment: .leading, spacing: AuraTheme.Spacing.sm) {
+            HStack {
+                Text("SUPPLEMENTS")
+                    .auraSectionHeader()
+
+                Spacer()
+
+                let checked = viewModel.todaySupplements.filter(\.isChecked).count
+                let total = viewModel.todaySupplements.count
+                Text("\(checked)/\(total)")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .foregroundColor(checked == total ? .neonGreen : .cyberOrange)
+            }
+
+            ForEach(viewModel.todaySupplements) { item in
+                Button {
+                    viewModel.toggleSupplement(item)
+                } label: {
+                    HStack(spacing: AuraTheme.Spacing.sm) {
+                        Image(systemName: item.isChecked ? "checkmark.circle.fill" : "circle")
+                            .font(.system(size: 18))
+                            .foregroundColor(item.isChecked ? .neonGreen : .auraTextDisabled)
+
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(item.name)
+                                .font(AuraTheme.Fonts.body())
+                                .foregroundColor(item.isChecked ? .auraTextSecondary : .auraTextPrimary)
+                                .strikethrough(item.isChecked)
+
+                            Text("\(item.dosage) — \(item.timing)")
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundColor(.auraTextDisabled)
+                        }
+
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .darkCard()
+        .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
     // MARK: - Prediction Card
