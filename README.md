@@ -12,7 +12,7 @@ AuraLift uses your iPhone camera to analyze exercise form in real-time, measure 
 |------|---------|
 | [spec.md](./spec.md) | Product specification and feature roadmap |
 | [architecture.md](./architecture.md) | System design, data flow, MVVM+Services |
-| [database-schema.md](./database-schema.md) | CoreData entities (12) and relationships |
+| [database-schema.md](./database-schema.md) | CoreData entities (18) and relationships |
 | [design-system.md](./design-system.md) | Cyberpunk visual language (colors, spacing, components) |
 | [user-flows.md](./user-flows.md) | User journeys (onboarding, workout, ranking) |
 | [tech-stack.md](./tech-stack.md) | Technology choices (100% Apple frameworks) |
@@ -33,6 +33,8 @@ AuraLift uses your iPhone camera to analyze exercise form in real-time, measure 
 | 8 | Nutrition & Body Composition | COMPLETE |
 | 9 | Audio & Announcer | COMPLETE |
 | 10 | AR & Social | COMPLETE |
+| 11 | Monetization & Gamification | COMPLETE |
+| 12 | Pareto Aesthetic Engine (Smart Program) | COMPLETE |
 
 ## Tech Stack
 

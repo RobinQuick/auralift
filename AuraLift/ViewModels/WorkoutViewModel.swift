@@ -96,6 +96,13 @@ class WorkoutViewModel: ObservableObject {
     @Published var isGhostModeEnabled: Bool = false
     @Published var lpParticles: [LPParticle] = []
 
+    // MARK: - Smart Program State
+
+    @Published var activeProgramDay: ProgramDay?
+    @Published var sessionMode: SessionMode = .normal
+    @Published var showTechniqueModeBanner: Bool = false
+    @Published var showSwapSheet: Bool = false
+
     // MARK: - Ranking State
 
     @Published var workoutLP: Int32 = 0
@@ -407,6 +414,9 @@ class WorkoutViewModel: ObservableObject {
                 // Data remains in memory if save fails
             }
         }
+
+        // Mark program day as completed if running from a program
+        markProgramDayCompleted()
 
         // Calculate LP and record ranking
         calculateAndRecordLP()
@@ -752,7 +762,57 @@ class WorkoutViewModel: ObservableObject {
         currentSession = nil
         selectedExercise = nil
         currentExerciseName = ""
+        activeProgramDay = nil
+        sessionMode = .normal
+        showTechniqueModeBanner = false
         audioManager.stopAll()
         repCounter.onRepCompleted = nil
+    }
+
+    // MARK: - Smart Program Integration
+
+    /// Pre-loads the exercise sequence from a ProgramDay.
+    func configureFromProgramDay(_ day: ProgramDay) {
+        activeProgramDay = day
+
+        // Auto-select the first exercise in the program
+        if let firstProgEx = day.sortedExercises.first, let exercise = firstProgEx.exercise {
+            selectExercise(exercise)
+            currentWeight = firstProgEx.targetWeightKg
+        }
+    }
+
+    /// Applies technique mode — reduces weights by adaptation percentage.
+    func applyTechniqueMode(_ adaptation: SessionAdaptation) {
+        sessionMode = adaptation.mode
+        showTechniqueModeBanner = adaptation.mode == .technique
+
+        // Reduce weight for current exercise
+        if adaptation.weightReduction > 0 {
+            let reduced = currentWeight * (1.0 - adaptation.weightReduction)
+            currentWeight = round(reduced / 2.5) * 2.5
+        }
+    }
+
+    /// Marks the current program day as completed and triggers week-end check.
+    private func markProgramDayCompleted() {
+        guard let day = activeProgramDay,
+              let session = currentSession else { return }
+        day.isCompleted = true
+        day.completedSessionId = session.id
+
+        // Mark exercises as completed with actual data
+        for progEx in day.sortedExercises {
+            progEx.isCompleted = true
+            // Find matching sets for this exercise
+            let matchingSets = completedSets.filter { _ in
+                progEx.exercise?.name == currentExerciseName
+            }
+            if let lastSet = matchingSets.last {
+                progEx.actualWeightKg = lastSet.weightKg
+                progEx.actualReps = Int16(lastSet.reps)
+                progEx.actualRPE = lastSet.rpe
+            }
+        }
     }
 }

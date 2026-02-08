@@ -54,6 +54,11 @@ struct WorkoutLiveView: View {
                 hudOverlay
             }
 
+            // Layer 3.5: Technique Mode banner
+            if viewModel.showTechniqueModeBanner {
+                techniqueModeBanner
+            }
+
             // Layer 4: Form issue / auto-stop banners
             if viewModel.isSessionActive {
                 feedbackBanners
@@ -407,6 +412,12 @@ struct WorkoutLiveView: View {
                     NeonOutlineButton(title: "EXERCISE", icon: "arrow.triangle.2.circlepath") {
                         viewModel.showExercisePicker = true
                     }
+
+                    if viewModel.activeProgramDay != nil {
+                        NeonOutlineButton(title: "SWAP", icon: "arrow.triangle.swap", color: .cyberOrange) {
+                            viewModel.showSwapSheet = true
+                        }
+                    }
                 }
                 .padding(.horizontal, AuraTheme.Spacing.lg)
             }
@@ -563,6 +574,29 @@ struct WorkoutLiveView: View {
             .padding(.bottom, AuraTheme.Spacing.xxl)
         }
         .auraBackground()
+    }
+
+    // MARK: - Technique Mode Banner
+
+    private var techniqueModeBanner: some View {
+        VStack {
+            HStack(spacing: AuraTheme.Spacing.sm) {
+                Image(systemName: "gauge.with.dots.needle.0percent")
+                    .font(.system(size: 16))
+                    .foregroundColor(.cyberOrange)
+
+                Text("TECHNIQUE MODE — Lighter load, slower tempo")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundColor(.cyberOrange)
+            }
+            .padding(.horizontal, AuraTheme.Spacing.lg)
+            .padding(.vertical, AuraTheme.Spacing.sm)
+            .background(Color.cyberOrange.opacity(0.15))
+            .cornerRadius(AuraTheme.Radius.small)
+            .padding(.top, 60)
+
+            Spacer()
+        }
     }
 
     private func summaryStatCard(title: String, value: String, color: Color) -> some View {

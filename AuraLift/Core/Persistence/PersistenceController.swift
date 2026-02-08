@@ -54,6 +54,13 @@ struct PersistenceController {
         let guildMembershipEntity = buildGuildMembershipEntity()
         let seasonProgressEntity = buildSeasonProgressEntity()
 
+        // Phase 12: Smart Program entities
+        let gymProfileEntity = buildGymProfileEntity()
+        let trainingProgramEntity = buildTrainingProgramEntity()
+        let programWeekEntity = buildProgramWeekEntity()
+        let programDayEntity = buildProgramDayEntity()
+        let programExerciseEntity = buildProgramExerciseEntity()
+
         // Wire up relationships
         wireRelationships(
             userProfile: userProfileEntity,
@@ -70,6 +77,17 @@ struct PersistenceController {
             seasonProgress: seasonProgressEntity
         )
 
+        // Phase 12: Wire smart program relationships
+        wireSmartProgramRelationships(
+            userProfile: userProfileEntity,
+            exercise: exerciseEntity,
+            gymProfile: gymProfileEntity,
+            trainingProgram: trainingProgramEntity,
+            programWeek: programWeekEntity,
+            programDay: programDayEntity,
+            programExercise: programExerciseEntity
+        )
+
         model.entities = [
             userProfileEntity,
             morphoScanEntity,
@@ -83,7 +101,12 @@ struct PersistenceController {
             nutritionLogEntity,
             scienceInsightEntity,
             guildMembershipEntity,
-            seasonProgressEntity
+            seasonProgressEntity,
+            gymProfileEntity,
+            trainingProgramEntity,
+            programWeekEntity,
+            programDayEntity,
+            programExerciseEntity
         ]
 
         return model
@@ -450,6 +473,156 @@ struct PersistenceController {
         nutritionLog.properties += [nutritionToUser]
         guildMembership.properties += [guildToUser]
         seasonProgress.properties += [seasonToUser]
+    }
+
+    // MARK: - Phase 12: Smart Program Entity Builders
+
+    private static func buildGymProfileEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = "GymProfile"
+        entity.managedObjectClassName = "GymProfile"
+        entity.properties = [
+            attribute("id", .UUIDAttributeType, optional: false),
+            attribute("name", .stringAttributeType, optional: false),
+            attribute("availableEquipment", .stringAttributeType, defaultValue: ""),
+            attribute("availableBrands", .stringAttributeType, defaultValue: ""),
+            attribute("isActive", .booleanAttributeType, defaultValue: true),
+        ]
+        return entity
+    }
+
+    private static func buildTrainingProgramEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = "TrainingProgram"
+        entity.managedObjectClassName = "TrainingProgram"
+        entity.properties = [
+            attribute("id", .UUIDAttributeType, optional: false),
+            attribute("name", .stringAttributeType, optional: false),
+            attribute("startDate", .dateAttributeType, optional: false),
+            attribute("endDate", .dateAttributeType),
+            attribute("weekCount", .integer16AttributeType, defaultValue: Int16(12)),
+            attribute("frequency", .stringAttributeType, defaultValue: "full_body_3"),
+            attribute("aestheticGoal", .stringAttributeType, defaultValue: "greek_male"),
+            attribute("gymProfileId", .UUIDAttributeType),
+            attribute("morphotypeAtCreation", .stringAttributeType),
+            attribute("isActive", .booleanAttributeType, defaultValue: true),
+        ]
+        return entity
+    }
+
+    private static func buildProgramWeekEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = "ProgramWeek"
+        entity.managedObjectClassName = "ProgramWeek"
+        entity.properties = [
+            attribute("id", .UUIDAttributeType, optional: false),
+            attribute("weekNumber", .integer16AttributeType, defaultValue: Int16(1)),
+            attribute("weekType", .stringAttributeType, defaultValue: "normal"),
+            attribute("volumeModifier", .doubleAttributeType, defaultValue: 1.0),
+            attribute("intensityModifier", .doubleAttributeType, defaultValue: 1.0),
+            attribute("overloadNotes", .stringAttributeType),
+            attribute("isComplete", .booleanAttributeType, defaultValue: false),
+        ]
+        return entity
+    }
+
+    private static func buildProgramDayEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = "ProgramDay"
+        entity.managedObjectClassName = "ProgramDay"
+        entity.properties = [
+            attribute("id", .UUIDAttributeType, optional: false),
+            attribute("dayIndex", .integer16AttributeType, defaultValue: Int16(0)),
+            attribute("dayLabel", .stringAttributeType, defaultValue: ""),
+            attribute("scheduledDate", .dateAttributeType),
+            attribute("isRestDay", .booleanAttributeType, defaultValue: false),
+            attribute("isCompleted", .booleanAttributeType, defaultValue: false),
+            attribute("completedSessionId", .UUIDAttributeType),
+            attribute("estimatedDurationMinutes", .integer16AttributeType, defaultValue: Int16(0)),
+            attribute("recoveryFocus", .stringAttributeType),
+        ]
+        return entity
+    }
+
+    private static func buildProgramExerciseEntity() -> NSEntityDescription {
+        let entity = NSEntityDescription()
+        entity.name = "ProgramExercise"
+        entity.managedObjectClassName = "ProgramExercise"
+        entity.properties = [
+            attribute("id", .UUIDAttributeType, optional: false),
+            attribute("exerciseOrder", .integer16AttributeType, defaultValue: Int16(0)),
+            attribute("targetSets", .integer16AttributeType, defaultValue: Int16(3)),
+            attribute("targetReps", .stringAttributeType, defaultValue: "8-12"),
+            attribute("targetWeightKg", .doubleAttributeType, defaultValue: 0.0),
+            attribute("targetRPE", .doubleAttributeType, defaultValue: 7.0),
+            attribute("targetVelocityZone", .stringAttributeType),
+            attribute("restSeconds", .integer16AttributeType, defaultValue: Int16(90)),
+            attribute("tempoDescription", .stringAttributeType),
+            attribute("whyMessage", .stringAttributeType),
+            attribute("priorityReason", .stringAttributeType),
+            attribute("isCompleted", .booleanAttributeType, defaultValue: false),
+            attribute("actualWeightKg", .doubleAttributeType, defaultValue: 0.0),
+            attribute("actualReps", .integer16AttributeType, defaultValue: Int16(0)),
+            attribute("actualRPE", .doubleAttributeType, defaultValue: 0.0),
+        ]
+        return entity
+    }
+
+    // MARK: - Phase 12: Smart Program Relationship Wiring
+
+    private static func wireSmartProgramRelationships(
+        userProfile: NSEntityDescription,
+        exercise: NSEntityDescription,
+        gymProfile: NSEntityDescription,
+        trainingProgram: NSEntityDescription,
+        programWeek: NSEntityDescription,
+        programDay: NSEntityDescription,
+        programExercise: NSEntityDescription
+    ) {
+        // UserProfile ↔ GymProfile (one-to-many)
+        let userToGyms = relationship("gymProfiles", destination: gymProfile, toMany: true)
+        let gymToUser = relationship("userProfile", destination: userProfile)
+        userToGyms.inverseRelationship = gymToUser
+        gymToUser.inverseRelationship = userToGyms
+
+        // UserProfile ↔ TrainingProgram (one-to-many)
+        let userToPrograms = relationship("trainingPrograms", destination: trainingProgram, toMany: true)
+        let programToUser = relationship("userProfile", destination: userProfile)
+        userToPrograms.inverseRelationship = programToUser
+        programToUser.inverseRelationship = userToPrograms
+
+        // TrainingProgram ↔ ProgramWeek (one-to-many, ordered, cascade)
+        let programToWeeks = relationship("weeks", destination: programWeek, toMany: true, ordered: true)
+        let weekToProgram = relationship("trainingProgram", destination: trainingProgram)
+        programToWeeks.inverseRelationship = weekToProgram
+        weekToProgram.inverseRelationship = programToWeeks
+
+        // ProgramWeek ↔ ProgramDay (one-to-many, ordered, cascade)
+        let weekToDays = relationship("days", destination: programDay, toMany: true, ordered: true)
+        let dayToWeek = relationship("programWeek", destination: programWeek)
+        weekToDays.inverseRelationship = dayToWeek
+        dayToWeek.inverseRelationship = weekToDays
+
+        // ProgramDay ↔ ProgramExercise (one-to-many, ordered, cascade)
+        let dayToExercises = relationship("exercises", destination: programExercise, toMany: true, ordered: true)
+        let exerciseToDay = relationship("programDay", destination: programDay)
+        dayToExercises.inverseRelationship = exerciseToDay
+        exerciseToDay.inverseRelationship = dayToExercises
+
+        // ProgramExercise → Exercise (many-to-one)
+        let progExToExercise = relationship("exercise", destination: exercise, optional: true)
+        let exerciseToProgExs = relationship("programExercises", destination: programExercise, toMany: true)
+        progExToExercise.inverseRelationship = exerciseToProgExs
+        exerciseToProgExs.inverseRelationship = progExToExercise
+
+        // Assign relationships to entities
+        userProfile.properties += [userToGyms, userToPrograms]
+        gymProfile.properties += [gymToUser]
+        trainingProgram.properties += [programToUser, programToWeeks]
+        programWeek.properties += [weekToProgram, weekToDays]
+        programDay.properties += [dayToWeek, dayToExercises]
+        programExercise.properties += [exerciseToDay, progExToExercise]
+        exercise.properties += [exerciseToProgExs]
     }
 
     // MARK: - Helpers

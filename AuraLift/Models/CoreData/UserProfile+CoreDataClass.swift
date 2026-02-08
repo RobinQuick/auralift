@@ -28,6 +28,8 @@ public class UserProfile: NSManagedObject {
     @NSManaged public var recoverySnapshots: NSSet?
     @NSManaged public var nutritionLogs: NSSet?
     @NSManaged public var guildMembership: NSManagedObject?
+    @NSManaged public var gymProfiles: NSSet?
+    @NSManaged public var trainingPrograms: NSSet?
 
     // MARK: - Convenience Initializer
 

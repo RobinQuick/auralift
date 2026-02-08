@@ -27,6 +27,9 @@ struct DashboardView: View {
                     // MARK: - Season Pass Card
                     seasonPassCard
 
+                    // MARK: - Smart Program Card
+                    smartProgramCard
+
                     // MARK: - Quick Stats
                     quickStatsSection
 
@@ -185,6 +188,121 @@ struct DashboardView: View {
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
+    // MARK: - Smart Program Card
+
+    private var smartProgramCard: some View {
+        Group {
+            if let program = activeProgramInfo {
+                // Active program: show today's session
+                NavigationLink {
+                    HolisticCoachView(context: viewContext)
+                        .environment(\.managedObjectContext, viewContext)
+                } label: {
+                    HStack(spacing: AuraTheme.Spacing.md) {
+                        Image(systemName: "brain.head.profile")
+                            .font(.system(size: 28))
+                            .foregroundColor(.neonBlue)
+
+                        VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
+                            HStack(spacing: AuraTheme.Spacing.xs) {
+                                Text("SMART PROGRAM")
+                                    .font(AuraTheme.Fonts.subheading())
+                                    .foregroundColor(.auraTextPrimary)
+
+                                Text("Wk \(program.weekNumber)/12")
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.neonBlue)
+                            }
+
+                            Text(program.todayLabel)
+                                .font(AuraTheme.Fonts.caption())
+                                .foregroundColor(.auraTextSecondary)
+                        }
+
+                        Spacer()
+
+                        if !PremiumManager.shared.isPro {
+                            PremiumBadge(.small)
+                        }
+
+                        Image(systemName: "chevron.right")
+                            .font(AuraTheme.Fonts.caption())
+                            .foregroundColor(.auraTextDisabled)
+                    }
+                    .darkCard()
+                    .neonGlow(color: .neonBlue, radius: AuraTheme.Shadows.subtleGlowRadius)
+                }
+            } else {
+                // No program: show CTA
+                NavigationLink {
+                    ProgramSetupWizardView(viewModel: SmartProgramViewModel(context: viewContext))
+                        .environment(\.managedObjectContext, viewContext)
+                } label: {
+                    HStack(spacing: AuraTheme.Spacing.md) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 28))
+                            .foregroundColor(.neonGreen)
+
+                        VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
+                            Text("CREATE SMART PROGRAM")
+                                .font(AuraTheme.Fonts.subheading())
+                                .foregroundColor(.auraTextPrimary)
+
+                            Text("AI-powered 12-week plan for your body")
+                                .font(AuraTheme.Fonts.caption())
+                                .foregroundColor(.auraTextSecondary)
+                        }
+
+                        Spacer()
+
+                        if !PremiumManager.shared.isPro {
+                            PremiumBadge(.small)
+                        }
+
+                        Image(systemName: "chevron.right")
+                            .font(AuraTheme.Fonts.caption())
+                            .foregroundColor(.auraTextDisabled)
+                    }
+                    .darkCard()
+                    .neonGlow(color: .neonGreen, radius: AuraTheme.Shadows.subtleGlowRadius)
+                }
+            }
+        }
+        .padding(.horizontal, AuraTheme.Spacing.lg)
+    }
+
+    // MARK: - Active Program Info
+
+    private struct ActiveProgramInfo {
+        let weekNumber: Int
+        let todayLabel: String
+    }
+
+    private var activeProgramInfo: ActiveProgramInfo? {
+        let request = NSFetchRequest<TrainingProgram>(entityName: "TrainingProgram")
+        request.predicate = NSPredicate(format: "isActive == YES")
+        request.fetchLimit = 1
+        guard let program = try? viewContext.fetch(request).first else { return nil }
+
+        let weekNum = program.currentWeekNumber
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        guard let week = program.sortedWeeks.first(where: { $0.weekNumber == Int16(weekNum) }) else {
+            return ActiveProgramInfo(weekNumber: weekNum, todayLabel: "Week \(weekNum)")
+        }
+
+        if let day = week.sortedDays.first(where: { day in
+            guard let scheduled = day.scheduledDate else { return false }
+            return calendar.isDate(scheduled, inSameDayAs: today)
+        }) {
+            let label = day.isRestDay ? "Rest Day" : "\(day.dayLabel) — \(day.exerciseCount) exercises"
+            return ActiveProgramInfo(weekNumber: weekNum, todayLabel: label)
+        }
+
+        return ActiveProgramInfo(weekNumber: weekNum, todayLabel: "Check your schedule")
+    }
+
     // MARK: - Header
 
     private var headerSection: some View {
@@ -216,7 +334,7 @@ struct DashboardView: View {
                 statCard(
                     icon: "dumbbell.fill",
                     title: "Workout",
-                    value: "Push A",
+                    value: activeProgramInfo?.todayLabel.prefix(8).description ?? "Push A",
                     accent: .neonBlue
                 )
 

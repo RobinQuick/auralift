@@ -25,6 +25,7 @@ public class Exercise: NSManagedObject {
     @NSManaged public var machineSpec: NSManagedObject?
     @NSManaged public var workoutSets: NSSet?
     @NSManaged public var muscleGroups: NSSet?
+    @NSManaged public var programExercises: NSSet?
 
     // MARK: - Convenience Initializer
 
