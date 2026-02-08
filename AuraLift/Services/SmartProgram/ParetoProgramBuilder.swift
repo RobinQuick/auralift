@@ -284,7 +284,8 @@ final class ParetoProgramBuilder {
         }
 
         // Long femurs → ban full Back Squat → Leg Press or Bulgarian Split Squat
-        if morphotype == .longLimbed || measurements.femurToTorsoRatio > 0.55,
+        // AureaBrain threshold: 0.85 for strict ban (via evaluateMorphoConstraints)
+        if morphotype == .longLimbed || measurements.femurToTorsoRatio > 0.85,
            name.contains("back squat") || name == "squat" {
             return findAlternative(
                 primaryMuscle: exercise.primaryMuscle ?? "Quads",

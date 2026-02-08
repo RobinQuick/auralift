@@ -69,6 +69,8 @@ final class AnnouncerService: ServiceProtocol {
 
     // MARK: - Settings
 
+    let personaEngine = PersonaEngine()
+
     var activeVoicePack: VoicePack {
         didSet { UserDefaults.standard.set(activeVoicePack.rawValue, forKey: "announcer.voicePack") }
     }
@@ -133,13 +135,13 @@ final class AnnouncerService: ServiceProtocol {
     private func handleRepCompleted(formScore: Double, repNumber: Int) {
         guard canAnnounce() else { return }
 
-        let line: String
+        let event: PersonaEvent
         if repNumber == 1 {
-            line = VoicePackLines.firstRep(for: activeVoicePack)
+            event = .firstRep
         } else if formScore >= 97 {
-            line = VoicePackLines.perfectRep(for: activeVoicePack)
+            event = .perfectRep
         } else if formScore >= 90 {
-            line = VoicePackLines.excellentRep(for: activeVoicePack)
+            event = .excellentRep
         } else {
             // No announcement for average reps
             hapticManager.playRepFeedback(formScore: formScore)
@@ -147,6 +149,7 @@ final class AnnouncerService: ServiceProtocol {
             return
         }
 
+        let line = personaEngine.lineFor(event: event)
         markAnnounced()
         speak(line, priority: .low)
         hapticManager.playRepFeedback(formScore: formScore)
@@ -156,7 +159,7 @@ final class AnnouncerService: ServiceProtocol {
     private func handleComboMilestone(count: Int) {
         guard canAnnounceCombo() else { return }
 
-        let line = VoicePackLines.comboMilestone(for: activeVoicePack, count: count)
+        let line = personaEngine.lineFor(event: .comboMilestone(count: count))
         markComboAnnounced()
         speak(line, priority: .medium)
         hapticManager.playComboTick(count: count)
@@ -164,15 +167,16 @@ final class AnnouncerService: ServiceProtocol {
     }
 
     private func handleSetCompleted(summary: SetSummary) {
-        let line: String
+        let event: PersonaEvent
         if summary.averageFormScore >= 95 {
-            line = VoicePackLines.perfectSet(for: activeVoicePack)
+            event = .perfectSet
         } else if summary.averageFormScore >= 80 {
-            line = VoicePackLines.goodSet(for: activeVoicePack)
+            event = .goodSet
         } else {
-            line = VoicePackLines.averageSet(for: activeVoicePack)
+            event = .averageSet
         }
 
+        let line = personaEngine.lineFor(event: event)
         // Set complete always plays (high priority, resets cooldown)
         markAnnounced()
         speak(line, priority: .high)
@@ -181,8 +185,7 @@ final class AnnouncerService: ServiceProtocol {
     }
 
     private func handleRankUp(newTier: RankTier) {
-        let template = VoicePackLines.rankUp(for: activeVoicePack)
-        let line = template.replacingOccurrences(of: "{TIER}", with: newTier.displayName)
+        let line = personaEngine.lineFor(event: .rankUp(tierName: newTier.displayName))
 
         speak(line, priority: .high)
         hapticManager.playRankUp()
@@ -198,12 +201,13 @@ final class AnnouncerService: ServiceProtocol {
         }
         lastSafetyTimes[issue.name] = now
 
-        let line: String
+        let event: PersonaEvent
         if issue.severity == .major {
-            line = VoicePackLines.majorSafety(for: activeVoicePack, issueName: issue.name)
+            event = .majorSafety(issueName: issue.name)
         } else {
-            line = VoicePackLines.moderateSafety(for: activeVoicePack, issueName: issue.name)
+            event = .moderateSafety(issueName: issue.name)
         }
+        let line = personaEngine.lineFor(event: event)
 
         // Safety always plays, bypasses standard cooldown
         speak(line, priority: .safety)
@@ -212,30 +216,26 @@ final class AnnouncerService: ServiceProtocol {
     }
 
     private func handleSessionStart() {
-        let line = VoicePackLines.sessionStart(for: activeVoicePack)
+        let line = personaEngine.lineFor(event: .sessionStart)
         speak(line, priority: .high)
         hapticManager.lightTap()
     }
 
     private func handleSessionEnd(totalXP: Int32, totalLP: Int32) {
-        let template = VoicePackLines.sessionEnd(for: activeVoicePack)
-        let line = template
-            .replacingOccurrences(of: "{XP}", with: "\(totalXP)")
-            .replacingOccurrences(of: "{LP}", with: "\(totalLP)")
-
+        let line = personaEngine.lineFor(event: .sessionEnd(xp: totalXP, lp: totalLP))
         speak(line, priority: .high)
         hapticManager.playSetComplete(averageFormScore: 100)
     }
 
     private func handlePersonalRecord(type: String) {
-        let line = VoicePackLines.personalRecord(for: activeVoicePack)
+        let line = personaEngine.lineFor(event: .personalRecord)
         speak(line, priority: .high)
         hapticManager.playRankUp()
         audioManager.playSFX(.personalRecord)
     }
 
     private func handleAutoStop() {
-        let line = VoicePackLines.autoStop(for: activeVoicePack)
+        let line = personaEngine.lineFor(event: .autoStop)
         speak(line, priority: .high)
         hapticManager.playSafetyAlert()
     }
@@ -261,7 +261,7 @@ final class AnnouncerService: ServiceProtocol {
     // MARK: - Speech Helper
 
     private func speak(_ text: String, priority: SpeechPriority) {
-        audioManager.speak(text: text, priority: priority, voiceConfig: activeVoicePack.voiceConfig)
+        audioManager.speak(text: text, priority: priority, voiceConfig: personaEngine.currentPersona.voiceConfig)
     }
 }
 

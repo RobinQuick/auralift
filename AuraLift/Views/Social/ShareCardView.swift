@@ -62,7 +62,7 @@ struct ShareCardView: View {
     private var headerSection: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                Text("AURALIFT")
+                Text("AUREA")
                     .font(.system(size: 14, weight: .heavy, design: .monospaced))
                     .foregroundColor(Color(hex: "00D4FF"))
                     .tracking(4)

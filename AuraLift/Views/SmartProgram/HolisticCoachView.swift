@@ -45,7 +45,7 @@ struct HolisticCoachView: View {
             .padding(.top, AuraTheme.Spacing.lg)
         }
         .auraBackground()
-        .navigationTitle("Smart Program")
+        .navigationTitle("AUREA INTELLIGENCE")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.loadActiveProgram()

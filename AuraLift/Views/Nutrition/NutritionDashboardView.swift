@@ -123,7 +123,54 @@ struct NutritionDashboardView: View {
 
             // Carb cycling info
             carbCyclingCard
+
+            // MetabolicFlux adaptive TDEE card
+            metabolicFluxCard
         }
+    }
+
+    // MARK: - MetabolicFlux Card
+
+    private var metabolicFluxCard: some View {
+        VStack(alignment: .leading, spacing: AuraTheme.Spacing.sm) {
+            HStack(spacing: AuraTheme.Spacing.sm) {
+                Image(systemName: "waveform.path.ecg")
+                    .foregroundColor(.aureaPrimary)
+                Text("ADAPTIVE METABOLISM")
+                    .font(AuraTheme.Fonts.subheading())
+                    .foregroundColor(.aureaTextPrimary)
+            }
+
+            Text("Your TDEE is dynamically adjusted based on weight trends and intake history.")
+                .font(AuraTheme.Fonts.body())
+                .foregroundColor(.aureaTextSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: AuraTheme.Spacing.lg) {
+                VStack(spacing: AuraTheme.Spacing.xxs) {
+                    Text("Adaptive TDEE")
+                        .font(AuraTheme.Fonts.caption())
+                        .foregroundColor(.aureaTextDisabled)
+                    Text("\(Int(viewModel.targetCalories)) kcal")
+                        .font(AuraTheme.Fonts.mono())
+                        .foregroundColor(.aureaPrimary)
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack(spacing: AuraTheme.Spacing.xxs) {
+                    Text("Recalculated")
+                        .font(AuraTheme.Fonts.caption())
+                        .foregroundColor(.aureaTextDisabled)
+                    Text("Monday")
+                        .font(AuraTheme.Fonts.mono())
+                        .foregroundColor(.aureaSecondary)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .aureaCard()
+        .aureaGlow(color: .aureaPrimary, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
     // MARK: - Calorie Ring

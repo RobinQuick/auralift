@@ -60,7 +60,7 @@ struct PaywallView: View {
                 .font(.system(size: 56))
                 .cyberpunkText(color: .neonGold)
 
-            Text("AURALIFT PRO")
+            Text("AUREA PRO")
                 .font(AuraTheme.Fonts.title(32))
                 .cyberpunkText(color: .neonGold)
 

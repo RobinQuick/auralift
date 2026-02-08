@@ -48,6 +48,11 @@ final class SmartProgramViewModel: ObservableObject {
 
     @Published var todaySupplements: [SupplementCheckItem] = []
 
+    // MARK: - MetabolicFlux State
+
+    @Published var metabolicAdjustment: MacroAdjustment?
+    @Published var adaptiveTDEE: Double?
+
     // MARK: - Prediction State
 
     @Published var waistPrediction: String = ""
@@ -123,6 +128,9 @@ final class SmartProgramViewModel: ObservableObject {
 
         // Load nutrition sync
         loadTodayMacros()
+
+        // Load MetabolicFlux
+        loadMetabolicFlux()
 
         // Load supplement checklist
         loadSupplementChecklist()
@@ -295,6 +303,49 @@ final class SmartProgramViewModel: ObservableObject {
             try context.save()
         } catch {
             context.rollback()
+        }
+    }
+
+    // MARK: - MetabolicFlux
+
+    private func loadMetabolicFlux() {
+        // Load weight entries from NutritionLog for the last 14 days
+        let calendar = Calendar.current
+        guard let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: Date()) else { return }
+
+        let logRequest = NSFetchRequest<NSManagedObject>(entityName: "NutritionLog")
+        logRequest.predicate = NSPredicate(format: "logDate >= %@", twoWeeksAgo as NSDate)
+        logRequest.sortDescriptors = [NSSortDescriptor(key: "logDate", ascending: true)]
+
+        guard let logs = try? context.fetch(logRequest), logs.count >= 7 else {
+            metabolicAdjustment = nil
+            adaptiveTDEE = nil
+            return
+        }
+
+        // Build WeightEntry array from logs
+        let profileRequest = NSFetchRequest<UserProfile>(entityName: "UserProfile")
+        profileRequest.fetchLimit = 1
+        guard let profile = try? context.fetch(profileRequest).first else { return }
+
+        let baseWeight = profile.weightKg
+        let entries: [WeightEntry] = logs.compactMap { log in
+            guard let date = log.value(forKey: "logDate") as? Date else { return nil }
+            let calories = log.value(forKey: "actualCalories") as? Double ?? log.value(forKey: "targetCalories") as? Double ?? 0
+            return WeightEntry(date: date, weightKg: baseWeight, calorieIntake: calories)
+        }
+
+        guard !entries.isEmpty else { return }
+
+        let flux = MetabolicFlux()
+        adaptiveTDEE = flux.smoothedTDEE(entries: entries)
+
+        if let tdee = adaptiveTDEE {
+            metabolicAdjustment = flux.weeklyRecalculate(
+                currentTDEE: tdee,
+                entries: entries,
+                goal: .maintenance
+            )
         }
     }
 

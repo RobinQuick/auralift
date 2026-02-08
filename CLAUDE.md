@@ -1,11 +1,11 @@
 # CLAUDE.md
 
-> Project-specific rules and patterns for AI assistants working on AuraLift
+> Project-specific rules and patterns for AI assistants working on AUREA
 
 ## Project Overview
 
-**Name:** AuraLift
-**Description:** AI-driven iOS bodybuilding app combining Computer Vision pose estimation, biomechanical morpho-analysis, and e-sport gamification
+**Name:** AUREA
+**Description:** AI-driven iOS bodybuilding app combining Computer Vision pose estimation, biomechanical morpho-analysis, prestige league system, and bio-decisional intelligence
 **Stack:** SwiftUI, CoreData (programmatic model), AVFoundation, Vision framework, HealthKit
 
 When generating UI text, labels, or dashboard content, use plain non-technical language suitable for executives (e.g., DSI). Avoid statistical jargon like MAPE, WMAPE unless explicitly requested.
@@ -40,7 +40,7 @@ protocol ServiceProtocol {}
 enum RankTier: String, CaseIterable {}
 
 // Constants in enums: camelCase cases
-enum AuraTheme {
+enum AureaTheme {
     enum Spacing {
         static let sm: CGFloat = 8
     }
@@ -160,29 +160,34 @@ final class ExampleService: ObservableObject, ServiceProtocol {
 
 ---
 
-## Cyberpunk Design System
+## AUREA Design System (Clinical Luxury)
 
 ### Colors
 ```swift
-Color.auraBlack          // #000000 — OLED black background
-Color.neonBlue           // #00D4FF — primary accent
-Color.cyberOrange        // #FF6B00 — secondary accent
-Color.neonGreen          // #00FF88 — success states
-Color.neonRed            // #FF4444 — danger states
-Color.neonGold           // #FFD700 — achievements
-Color.neonPurple         // #9B59B6 — special/mythic
-Color.auraSurface        // #0A0A0F — card backgrounds
-Color.auraSurfaceElevated // #12121A — elevated surfaces
+Color.aureaVoid            // #000000 — OLED black background
+Color.aureaPrimary         // #D4AF37 — primary accent (Gold)
+Color.aureaSecondary       // #C0C0C0 — secondary accent (Silver)
+Color.aureaSuccess         // #4CAF50 — success states (Muted green)
+Color.aureaAlert           // #CF6679 — danger states (Muted rose)
+Color.aureaPrestige        // #FFD700 — achievements (Gold)
+Color.aureaMystic          // #7C4DFF — special/elite (Purple)
+Color.aureaWhite           // #F5F5F0 — clinical white text
+Color.aureaSurface         // #0A0A0F — card backgrounds
+Color.aureaSurfaceElevated // #12121A — elevated surfaces
 ```
+
+Legacy aliases (`Color.neonBlue`, `.auraBlack`, etc.) still compile via `Color+AuraLift.swift`.
 
 ### View Modifiers
 ```swift
-.neonGlow(color:radius:cornerRadius:)  // Neon border + shadow
-.cyberpunkText(color:)                  // Colored text + glow shadow
-.darkCard()                             // Dark card background
-.pulse()                                // Repeating scale animation
-.auraBackground()                       // Full-screen OLED black
+.aureaGlow(color:radius:cornerRadius:)  // Gold border + shadow
+.aureaText(color:)                       // Colored text + glow shadow
+.aureaCard()                             // Dark card background
+.pulse()                                 // Repeating scale animation
+.aureaBackground()                       // Full-screen OLED black
 ```
+
+Legacy aliases (`.neonGlow()`, `.darkCard()`, `.auraBackground()`) still compile via ViewModifiers.swift.
 
 ---
 
@@ -193,7 +198,7 @@ Color.auraSurfaceElevated // #12121A — elevated surfaces
 - Never block the main thread with Vision/AVFoundation work
 - Never leave `print()` in production code (use os_log if needed)
 - Never create SwiftUI views over 200 lines (extract components)
-- Never hardcode colors — use `Color.neonBlue` etc. from `Color+AuraLift`
+- Never hardcode colors — use `Color.aureaPrimary` etc. from `Color+AuraLift`
 - Never skip `[weak self]` in closure captures for class instances
 
 ## Do
@@ -203,7 +208,7 @@ Color.auraSurfaceElevated // #12121A — elevated surfaces
 - Handle all camera/HealthKit permission states gracefully
 - Use `@Published` + `ObservableObject` for reactive state
 - Keep Vision inference on background threads with backpressure
-- Use `AuraTheme` constants for all spacing, radii, fonts
+- Use `AureaTheme` constants for all spacing, radii, fonts (legacy `AuraTheme` alias available)
 - Test on physical device for camera/pose features
 
 ---

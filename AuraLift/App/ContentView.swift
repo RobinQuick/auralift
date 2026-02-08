@@ -34,7 +34,7 @@ struct ContentView: View {
 /// App navigation tabs
 enum AppTab: String, CaseIterable {
     case dashboard = "Dashboard"
-    case workout = "Workout"
+    case workout = "Session"
     case ranking = "Ranking"
     case recovery = "Recovery"
     case profile = "Profile"
@@ -51,11 +51,11 @@ enum AppTab: String, CaseIterable {
 
     var accentColor: Color {
         switch self {
-        case .dashboard: return .neonBlue
-        case .workout:   return .cyberOrange
-        case .ranking:   return .neonGold
-        case .recovery:  return .neonGreen
-        case .profile:   return .neonPurple
+        case .dashboard: return .aureaPrimary
+        case .workout:   return .aureaSecondary
+        case .ranking:   return .aureaPrestige
+        case .recovery:  return .aureaSuccess
+        case .profile:   return .aureaMystic
         }
     }
 }

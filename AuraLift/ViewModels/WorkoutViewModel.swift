@@ -96,6 +96,12 @@ class WorkoutViewModel: ObservableObject {
     @Published var isGhostModeEnabled: Bool = false
     @Published var lpParticles: [LPParticle] = []
 
+    // MARK: - AureaBrain
+
+    let aureaBrain = AureaBrain()
+    @Published var morphoBanAlert: MorphoDecision?
+    @Published var isStealthMode: Bool = false
+
     // MARK: - Smart Program State
 
     @Published var activeProgramDay: ProgramDay?
@@ -164,6 +170,10 @@ class WorkoutViewModel: ObservableObject {
 
         // Create ghost mode pipeline
         self.ghostModeManager = GhostModeManager()
+
+        // Check stealth mode from PersonaEngine
+        let personaEngine = PersonaEngine()
+        self.isStealthMode = personaEngine.isStealthMode
 
         setupSubscriptions()
         setupRepCallback()
@@ -327,7 +337,16 @@ class WorkoutViewModel: ObservableObject {
         bpmSyncEngine.recordRepTimestamp()
         bpmSyncEngine.updateIntensity(velocityLossPercent: velocityLossPercent)
 
-        // Auto-stop announcement
+        // AureaBrain VBT Kill Switch: >20% velocity loss → immediate stop
+        if aureaBrain.evaluateVBTKillSwitch(velocityLossPercent: velocityLossPercent) {
+            audioManager.stopAll()
+            hapticManager.playSafetyAlert()
+            announcerService.handleEvent(.velocityAutoStop)
+            finishSet()
+            return
+        }
+
+        // Auto-stop announcement (standard, non-kill-switch)
         if shouldAutoStop {
             announcerService.handleEvent(.velocityAutoStop)
         }
@@ -563,6 +582,16 @@ class WorkoutViewModel: ObservableObject {
     // MARK: - Exercise Selection
 
     func selectExercise(_ exercise: Exercise) {
+        // AureaBrain morpho-constraint check
+        let segments = loadLatestSegmentMeasurements()
+        if let segments, let decision = aureaBrain.evaluateMorphoConstraints(
+            measurements: segments,
+            exerciseName: exercise.name
+        ), decision.isBanned {
+            morphoBanAlert = decision
+            return
+        }
+
         selectedExercise = exercise
         currentExerciseName = exercise.name
 

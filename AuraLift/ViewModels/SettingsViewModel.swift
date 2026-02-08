@@ -91,7 +91,7 @@ final class SettingsViewModel: ObservableObject {
         DailyQuestManager.shared.reset()
 
         // Note: HealthKit permissions cannot be revoked programmatically.
-        // Users must go to Settings → Health → AuraLift to remove access.
+        // Users must go to Settings → Health → AUREA to remove access.
 
         isDeleting = false
         deleteComplete = true

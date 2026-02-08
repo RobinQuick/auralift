@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// Neon-bordered card component with glow effect.
-struct GlowCard<Content: View>: View {
-    var glowColor: Color = .neonBlue
-    var cornerRadius: CGFloat = AuraTheme.Radius.medium
+/// Gold-bordered card component with glow effect.
+struct AureaGlowCard<Content: View>: View {
+    var glowColor: Color = .aureaPrimary
+    var cornerRadius: CGFloat = AureaTheme.Radius.medium
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         content()
-            .padding(AuraTheme.Spacing.lg)
-            .background(Color.auraSurfaceElevated)
+            .padding(AureaTheme.Spacing.lg)
+            .background(Color.aureaSurfaceElevated)
             .cornerRadius(cornerRadius)
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
@@ -19,17 +19,21 @@ struct GlowCard<Content: View>: View {
     }
 }
 
+// MARK: - Legacy Alias
+
+typealias GlowCard = AureaGlowCard
+
 /// Stat card variant showing a label and value
 struct StatCard: View {
     let label: String
     let value: String
     var unit: String = ""
-    var color: Color = .neonBlue
+    var color: Color = .aureaPrimary
     var icon: String? = nil
 
     var body: some View {
-        GlowCard(glowColor: color) {
-            VStack(alignment: .leading, spacing: AuraTheme.Spacing.sm) {
+        AureaGlowCard(glowColor: color) {
+            VStack(alignment: .leading, spacing: AureaTheme.Spacing.sm) {
                 HStack {
                     if let icon = icon {
                         Image(systemName: icon)
@@ -37,18 +41,18 @@ struct StatCard: View {
                             .foregroundColor(color)
                     }
                     Text(label.uppercased())
-                        .font(AuraTheme.Fonts.caption())
-                        .foregroundColor(.auraTextSecondary)
+                        .font(AureaTheme.Fonts.caption())
+                        .foregroundColor(.aureaTextSecondary)
                 }
 
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text(value)
-                        .font(AuraTheme.Fonts.statValue(28))
-                        .foregroundColor(.auraTextPrimary)
+                        .font(AureaTheme.Fonts.statValue(28))
+                        .foregroundColor(.aureaTextPrimary)
                     if !unit.isEmpty {
                         Text(unit)
-                            .font(AuraTheme.Fonts.caption())
-                            .foregroundColor(.auraTextSecondary)
+                            .font(AureaTheme.Fonts.caption())
+                            .foregroundColor(.aureaTextSecondary)
                     }
                 }
             }
@@ -59,14 +63,14 @@ struct StatCard: View {
 
 #Preview {
     VStack(spacing: 16) {
-        GlowCard(glowColor: .cyberOrange) {
+        AureaGlowCard(glowColor: .aureaSecondary) {
             Text("Custom Content")
                 .foregroundColor(.white)
         }
 
-        StatCard(label: "Total Volume", value: "12,450", unit: "kg", color: .neonBlue, icon: "scalemass.fill")
-        StatCard(label: "Form Score", value: "94", unit: "%", color: .neonGreen, icon: "checkmark.seal.fill")
+        StatCard(label: "Total Volume", value: "12,450", unit: "kg", color: .aureaPrimary, icon: "scalemass.fill")
+        StatCard(label: "Form Score", value: "94", unit: "%", color: .aureaSuccess, icon: "checkmark.seal.fill")
     }
     .padding()
-    .background(Color.auraBlack)
+    .background(Color.aureaVoid)
 }

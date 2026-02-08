@@ -1,11 +1,12 @@
 import SwiftUI
 import CoreData
 
-/// Main home screen showing the AURA LIFT title, XP progress, and quick stat cards.
+/// Main home screen showing the AUREA title, XP progress, and quick stat cards.
 struct DashboardView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject private var streakManager = CyberStreakManager.shared
     @ObservedObject private var questManager = DailyQuestManager.shared
+    @StateObject private var league = AureaLeague()
 
     var body: some View {
         NavigationStack {
@@ -17,6 +18,9 @@ struct DashboardView: View {
                     // MARK: - XP Progress
                     XPProgressBar(currentXP: 4_200, requiredXP: 10_000, tier: "Gold")
                         .padding(.horizontal, AuraTheme.Spacing.lg)
+
+                    // MARK: - Aurea League Prestige
+                    aureaLeagueCard
 
                     // MARK: - Cyber-Streak Flame
                     cyberStreakCard
@@ -205,7 +209,7 @@ struct DashboardView: View {
 
                         VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
                             HStack(spacing: AuraTheme.Spacing.xs) {
-                                Text("SMART PROGRAM")
+                                Text("AUREA BLUEPRINT")
                                     .font(AuraTheme.Fonts.subheading())
                                     .foregroundColor(.auraTextPrimary)
 
@@ -244,11 +248,11 @@ struct DashboardView: View {
                             .foregroundColor(.neonGreen)
 
                         VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
-                            Text("CREATE SMART PROGRAM")
+                            Text("CREATE AUREA BLUEPRINT")
                                 .font(AuraTheme.Fonts.subheading())
                                 .foregroundColor(.auraTextPrimary)
 
-                            Text("AI-powered 12-week plan for your body")
+                            Text("Aurea Intelligence — 12-week personalized blueprint")
                                 .font(AuraTheme.Fonts.caption())
                                 .foregroundColor(.auraTextSecondary)
                         }
@@ -303,21 +307,80 @@ struct DashboardView: View {
         return ActiveProgramInfo(weekNumber: weekNum, todayLabel: "Check your schedule")
     }
 
+    // MARK: - Aurea League Card
+
+    private var aureaLeagueCard: some View {
+        NavigationLink {
+            AureaLeagueView()
+        } label: {
+            HStack(spacing: AuraTheme.Spacing.md) {
+                Image(systemName: league.currentTier.iconName)
+                    .font(.system(size: 28))
+                    .foregroundColor(.aureaPrimary)
+                    .shadow(color: .aureaPrimary.opacity(0.5), radius: 6)
+
+                VStack(alignment: .leading, spacing: AuraTheme.Spacing.xxs) {
+                    HStack(spacing: AuraTheme.Spacing.xs) {
+                        Text(league.currentTier.displayName.uppercased())
+                            .font(AuraTheme.Fonts.subheading())
+                            .foregroundColor(.aureaPrimary)
+
+                        Text("\(league.prestigePoints) pts")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .foregroundColor(.aureaTextSecondary)
+                    }
+
+                    if league.pointsToNextTier > 0 {
+                        Text("\(league.pointsToNextTier) to \(league.currentTier.next?.displayName ?? "")")
+                            .font(AuraTheme.Fonts.caption())
+                            .foregroundColor(.aureaTextSecondary)
+                    } else {
+                        Text("Maximum prestige achieved")
+                            .font(AuraTheme.Fonts.caption())
+                            .foregroundColor(.aureaPrestige)
+                    }
+                }
+
+                Spacer()
+
+                // Mini progress ring
+                ZStack {
+                    Circle()
+                        .stroke(Color.aureaSurfaceElevated, lineWidth: 3)
+                        .frame(width: 32, height: 32)
+
+                    Circle()
+                        .trim(from: 0, to: league.progressToNextTier)
+                        .stroke(Color.aureaPrimary, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .frame(width: 32, height: 32)
+                        .rotationEffect(.degrees(-90))
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(AuraTheme.Fonts.caption())
+                    .foregroundColor(.aureaTextDisabled)
+            }
+            .aureaCard()
+            .aureaGlow(color: .aureaPrimary, radius: AuraTheme.Shadows.subtleGlowRadius)
+        }
+        .padding(.horizontal, AuraTheme.Spacing.lg)
+    }
+
     // MARK: - Header
 
     private var headerSection: some View {
         VStack(spacing: AuraTheme.Spacing.sm) {
             Image(systemName: "bolt.shield.fill")
                 .font(.system(size: 44))
-                .cyberpunkText(color: .neonBlue)
+                .aureaText(color: .aureaPrimary)
 
-            Text("AURA LIFT")
+            Text("AUREA")
                 .font(AuraTheme.Fonts.title(34))
-                .cyberpunkText(color: .neonBlue)
+                .aureaText(color: .aureaPrimary)
 
-            Text("Shadow Athlete Protocol")
+            Text(Aurea.tagline)
                 .font(AuraTheme.Fonts.caption())
-                .foregroundColor(.auraTextSecondary)
+                .foregroundColor(.aureaTextSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, AuraTheme.Spacing.md)

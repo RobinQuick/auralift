@@ -141,12 +141,15 @@ final class LiveSessionAdapter {
 
     /// Checks if the session should be adapted based on readiness.
     /// Neo-Coach auto-reg: <35% → Volume Mode (-20% load, +2 reps).
+    /// AureaBrain cycle constraints: luteal RPE cap 7, menstrual RPE cap 8.
     func checkAutoReg(
         readinessScore: Double,
         cyclePhase: CyclePhase?,
         deload: Bool
     ) -> SessionAdaptation? {
         guard !deload else { return nil }
+
+        let brain = AureaBrain()
 
         // Critical recovery: Volume Mode — reduce load, increase reps for blood flow
         if readinessScore < 35 {
@@ -170,14 +173,16 @@ final class LiveSessionAdapter {
             )
         }
 
-        // Cycle phase adaptation (luteal → reduce intensity)
-        if let phase = cyclePhase, phase == .luteal {
+        // AureaBrain cycle phase adaptation
+        if let constraint = brain.evaluateCycleConstraints(cyclePhase: cyclePhase) {
+            let volumeReduction = constraint.volumeReduction
+            let repAdj = constraint.rpeCap <= 7.0 ? 1 : 0
             return SessionAdaptation(
                 mode: .normal,
-                weightReduction: 0.10,
-                repAdjustment: 1,
+                weightReduction: volumeReduction * 0.5, // Convert volume reduction to load reduction
+                repAdjustment: repAdj,
                 tempoAdjustment: "3-1-2",
-                whyMessage: "Luteal phase detected — slight load reduction, +1 rep for comfort and recovery."
+                whyMessage: constraint.reason
             )
         }
 

@@ -368,7 +368,7 @@ struct MorphoScanView: View {
                 .font(AuraTheme.Fonts.heading())
                 .cyberpunkText(color: .neonRed)
 
-            Text("AuraLift needs camera access to perform morpho scans.\nGo to Settings → AuraLift → Camera to enable it.")
+            Text("AUREA needs camera access to perform morpho scans.\nGo to Settings → AUREA → Camera to enable it.")
                 .font(AuraTheme.Fonts.body())
                 .foregroundColor(.auraTextSecondary)
                 .multilineTextAlignment(.center)

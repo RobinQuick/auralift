@@ -311,6 +311,28 @@ final class NutritionService: ServiceProtocol {
         }
     }
 
+    // MARK: - Dynamic TDEE (MetabolicFlux)
+
+    private let metabolicFlux = MetabolicFlux()
+
+    /// Computes TDEE using MetabolicFlux adaptive algorithm if 14+ days of data available.
+    /// Falls back to static Mifflin-St Jeor if insufficient history.
+    func dynamicTDEE(body: BodyComposition, entries: [WeightEntry]) -> Double {
+        if let smoothed = metabolicFlux.smoothedTDEE(entries: entries) {
+            return smoothed
+        }
+        return calculateTDEE(body: body)
+    }
+
+    /// Performs weekly metabolic recalculation. Returns nil if no adjustment needed.
+    func weeklyRecalculate(
+        currentTDEE: Double,
+        entries: [WeightEntry],
+        goal: NutritionGoal
+    ) -> MacroAdjustment? {
+        metabolicFlux.weeklyRecalculate(currentTDEE: currentTDEE, entries: entries, goal: goal)
+    }
+
     // MARK: - Save / Load CoreData
 
     /// Saves or updates today's nutrition log.

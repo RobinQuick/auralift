@@ -1,62 +1,90 @@
 import SwiftUI
 
 extension Color {
-    // MARK: - Primary Palette (Shadow Athlete)
+    // MARK: - Primary Palette (AUREA — Clinical Luxury)
 
-    /// Deep OLED black background
-    static let auraBlack = Color(hex: "000000")
+    /// Deep OLED void background
+    static let aureaVoid = Color(hex: "000000")
 
-    /// Neon Blue - primary accent
-    static let neonBlue = Color(hex: "00D4FF")
+    /// Gold — primary accent
+    static let aureaPrimary = Color(hex: "D4AF37")
 
-    /// Cyber Orange - secondary accent / warnings
-    static let cyberOrange = Color(hex: "FF6B00")
+    /// Silver — secondary accent
+    static let aureaSecondary = Color(hex: "C0C0C0")
 
-    /// Neon Green - success / optimal states
-    static let neonGreen = Color(hex: "00FF88")
+    /// Muted green — success / optimal states
+    static let aureaSuccess = Color(hex: "4CAF50")
 
-    /// Neon Red - danger / high risk
-    static let neonRed = Color(hex: "FF4444")
+    /// Muted rose — danger / alerts
+    static let aureaAlert = Color(hex: "CF6679")
 
-    /// Neon Purple - special / mythic tier
-    static let neonPurple = Color(hex: "9B59B6")
+    /// Deep purple — special / elite tier
+    static let aureaMystic = Color(hex: "7C4DFF")
 
-    /// Neon Gold - achievement / gold tier
-    static let neonGold = Color(hex: "FFD700")
+    /// Prestige gold — achievements
+    static let aureaPrestige = Color(hex: "FFD700")
+
+    /// Clinical white — text on dark
+    static let aureaWhite = Color(hex: "F5F5F5")
+
+    /// Golden Ratio Gold
+    static let aureaGold = Color(hex: "D4AF37")
+
+    // MARK: - Legacy Aliases (keep for transitional compilation)
+
+    static let auraBlack = aureaVoid
+    static let neonBlue = aureaPrimary
+    static let cyberOrange = aureaSecondary
+    static let neonGreen = aureaSuccess
+    static let neonRed = aureaAlert
+    static let neonPurple = aureaMystic
+    static let neonGold = aureaPrestige
 
     // MARK: - Surface Colors
 
     /// Dark surface for cards
-    static let auraSurface = Color(hex: "0A0A0F")
+    static let aureaSurface = Color(hex: "0A0A0F")
 
     /// Slightly lighter surface for elevated elements
-    static let auraSurfaceElevated = Color(hex: "12121A")
+    static let aureaSurfaceElevated = Color(hex: "12121A")
 
     /// Border color with subtle glow
-    static let auraBorder = Color(hex: "1A1A2E")
+    static let aureaBorder = Color(hex: "1A1A2E")
+
+    // MARK: - Legacy Surface Aliases
+
+    static let auraSurface = aureaSurface
+    static let auraSurfaceElevated = aureaSurfaceElevated
+    static let auraBorder = aureaBorder
 
     // MARK: - Text Colors
 
-    /// Primary text - bright white
-    static let auraTextPrimary = Color(hex: "FFFFFF")
+    /// Primary text — clinical white
+    static let aureaTextPrimary = Color(hex: "F5F5F5")
 
-    /// Secondary text - dimmed
-    static let auraTextSecondary = Color(hex: "8B8B9E")
+    /// Secondary text — dimmed
+    static let aureaTextSecondary = Color(hex: "8B8B9E")
 
     /// Disabled text
-    static let auraTextDisabled = Color(hex: "4A4A5A")
+    static let aureaTextDisabled = Color(hex: "4A4A5A")
+
+    // MARK: - Legacy Text Aliases
+
+    static let auraTextPrimary = aureaTextPrimary
+    static let auraTextSecondary = aureaTextSecondary
+    static let auraTextDisabled = aureaTextDisabled
 
     // MARK: - Rank Tier Colors
 
     static let rankIron = Color(hex: "8B8B8B")
     static let rankBronze = Color(hex: "CD7F32")
     static let rankSilver = Color(hex: "C0C0C0")
-    static let rankGold = Color(hex: "FFD700")
-    static let rankPlatinum = Color(hex: "00CED1")
+    static let rankGold = Color(hex: "D4AF37")
+    static let rankPlatinum = Color(hex: "E5E4E2")
     static let rankDiamond = Color(hex: "B9F2FF")
-    static let rankMaster = Color(hex: "9B59B6")
-    static let rankGrandmaster = Color(hex: "FF4444")
-    static let rankChallenger = Color(hex: "FF6B00")
+    static let rankMaster = Color(hex: "7C4DFF")
+    static let rankGrandmaster = Color(hex: "CF6679")
+    static let rankChallenger = Color(hex: "D4AF37")
 
     // MARK: - Hex Initializer
 

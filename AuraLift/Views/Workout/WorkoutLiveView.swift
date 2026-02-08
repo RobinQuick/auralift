@@ -86,7 +86,7 @@ struct WorkoutLiveView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("AuraLift needs camera access to analyze your exercise form. Please enable it in Settings.")
+            Text("AUREA needs camera access to analyze your exercise form. Please enable it in Settings.")
         }
         .sheet(isPresented: $viewModel.showExercisePicker) {
             ExercisePickerView { exercise in
@@ -114,7 +114,7 @@ struct WorkoutLiveView: View {
                 .font(AuraTheme.Fonts.heading())
                 .cyberpunkText(color: .cyberOrange)
 
-            Text("AuraLift needs your camera to track\nexercise form in real time.")
+            Text("AUREA needs your camera to track\nexercise form in real time.")
                 .font(AuraTheme.Fonts.body())
                 .foregroundColor(.auraTextSecondary)
                 .multilineTextAlignment(.center)

@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Custom tab bar with cyberpunk neon styling.
-struct CyberpunkTabBar: View {
+/// Custom tab bar with AUREA gold styling.
+struct AureaTabBar: View {
     @Binding var selectedTab: AppTab
 
     var body: some View {
@@ -10,12 +10,12 @@ struct CyberpunkTabBar: View {
                 tabButton(for: tab)
             }
         }
-        .padding(.horizontal, AuraTheme.Spacing.sm)
-        .padding(.top, AuraTheme.Spacing.sm)
-        .padding(.bottom, AuraTheme.Spacing.xl)
+        .padding(.horizontal, AureaTheme.Spacing.sm)
+        .padding(.top, AureaTheme.Spacing.sm)
+        .padding(.bottom, AureaTheme.Spacing.xl)
         .background(
             Rectangle()
-                .fill(Color.auraSurface)
+                .fill(Color.aureaSurface)
                 .overlay(
                     Rectangle()
                         .fill(
@@ -39,22 +39,22 @@ struct CyberpunkTabBar: View {
         let isSelected = selectedTab == tab
 
         return Button {
-            withAnimation(AuraTheme.Animation.quick) {
+            withAnimation(AureaTheme.Animation.quick) {
                 selectedTab = tab
             }
         } label: {
-            VStack(spacing: AuraTheme.Spacing.xs) {
+            VStack(spacing: AureaTheme.Spacing.xs) {
                 Image(systemName: tab.iconName)
                     .font(.system(size: 20, weight: isSelected ? .bold : .regular))
-                    .foregroundColor(isSelected ? tab.accentColor : .auraTextDisabled)
+                    .foregroundColor(isSelected ? tab.accentColor : .aureaTextDisabled)
                     .shadow(
                         color: isSelected ? tab.accentColor.opacity(0.5) : .clear,
                         radius: isSelected ? 6 : 0
                     )
 
                 Text(tab.rawValue)
-                    .font(AuraTheme.Fonts.caption(10))
-                    .foregroundColor(isSelected ? tab.accentColor : .auraTextDisabled)
+                    .font(AureaTheme.Fonts.caption(10))
+                    .foregroundColor(isSelected ? tab.accentColor : .aureaTextDisabled)
             }
             .frame(maxWidth: .infinity)
         }
@@ -62,9 +62,13 @@ struct CyberpunkTabBar: View {
     }
 }
 
+// MARK: - Legacy Alias
+
+typealias CyberpunkTabBar = AureaTabBar
+
 #Preview {
     ZStack(alignment: .bottom) {
-        Color.auraBlack.ignoresSafeArea()
-        CyberpunkTabBar(selectedTab: .constant(.dashboard))
+        Color.aureaVoid.ignoresSafeArea()
+        AureaTabBar(selectedTab: .constant(.dashboard))
     }
 }

@@ -31,7 +31,7 @@ struct ProgramSetupWizardView: View {
                 navigationBar
             }
             .auraBackground()
-            .navigationTitle("Smart Program")
+            .navigationTitle("AUREA BLUEPRINT")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

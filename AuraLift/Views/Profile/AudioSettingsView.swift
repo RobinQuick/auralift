@@ -9,7 +9,7 @@ struct AudioSettingsView: View {
 
     // MARK: - Settings State
 
-    @State private var selectedVoicePack: VoicePack = .esportAnnouncer
+    @State private var selectedPersona: PersonaMode = .spartan
     @State private var masterVolume: Float = 0.8
     @State private var voiceVolume: Float = 0.8
     @State private var sfxVolume: Float = 0.7
@@ -34,7 +34,7 @@ struct AudioSettingsView: View {
                 .padding(.top, AuraTheme.Spacing.lg)
             }
             .auraBackground()
-            .navigationTitle("Audio & Announcer")
+            .navigationTitle("Persona & Voice")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -49,82 +49,64 @@ struct AudioSettingsView: View {
         }
     }
 
-    // MARK: - Voice Pack Section
+    // MARK: - Persona Section
 
     private var voicePackSection: some View {
         VStack(spacing: AuraTheme.Spacing.md) {
-            Text("VOICE PACK")
+            Text("PERSONA")
                 .auraSectionHeader()
 
             VStack(spacing: AuraTheme.Spacing.sm) {
-                ForEach(VoicePack.allCases, id: \.rawValue) { pack in
-                    voicePackCard(pack)
+                ForEach(PersonaMode.allCases, id: \.rawValue) { persona in
+                    personaCard(persona)
                 }
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)
         }
     }
 
-    private func voicePackCard(_ pack: VoicePack) -> some View {
-        let isSelected = selectedVoicePack == pack
-        let isLocked = pack == .spartanWarrior && !PremiumManager.shared.isPro
+    private func personaCard(_ persona: PersonaMode) -> some View {
+        let isSelected = selectedPersona == persona
 
         return Button {
-            if isLocked {
-                showPaywall = true
-            } else {
-                selectedVoicePack = pack
-                saveSettings()
-            }
+            selectedPersona = persona
+            saveSettings()
         } label: {
             HStack(spacing: AuraTheme.Spacing.md) {
-                Image(systemName: pack.iconName)
+                Image(systemName: persona.iconName)
                     .font(.system(size: 24))
-                    .foregroundColor(isLocked ? .auraTextDisabled : (isSelected ? .neonBlue : .auraTextSecondary))
+                    .foregroundColor(isSelected ? .aureaPrimary : .aureaTextSecondary)
                     .frame(width: 36)
 
                 VStack(alignment: .leading, spacing: AuraTheme.Spacing.xs) {
-                    HStack(spacing: AuraTheme.Spacing.xs) {
-                        Text(pack.displayName)
-                            .font(AuraTheme.Fonts.subheading())
-                            .foregroundColor(isLocked ? .auraTextDisabled : .auraTextPrimary)
+                    Text(persona.displayName)
+                        .font(AuraTheme.Fonts.subheading())
+                        .foregroundColor(.aureaTextPrimary)
 
-                        if isLocked {
-                            PremiumBadge(.small)
-                        }
-                    }
-
-                    Text(pack.description)
+                    Text(persona.description)
                         .font(AuraTheme.Fonts.caption())
-                        .foregroundColor(.auraTextSecondary)
+                        .foregroundColor(.aureaTextSecondary)
                 }
 
                 Spacer()
 
-                if isLocked {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 18))
-                        .foregroundColor(.neonGold)
-                } else if isSelected {
+                if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 22))
-                        .foregroundColor(.neonBlue)
+                        .foregroundColor(.aureaPrimary)
                 }
             }
-            .darkCard()
+            .aureaCard()
             .overlay(
                 RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
-                    .stroke(isSelected && !isLocked ? Color.neonBlue.opacity(0.6) : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? Color.aureaPrimary.opacity(0.6) : Color.clear, lineWidth: 1)
             )
         }
-        .disabled(isLocked)
         .contextMenu {
-            if !isLocked {
-                Button {
-                    previewVoicePack(pack)
-                } label: {
-                    Label("Preview", systemImage: "play.circle")
-                }
+            Button {
+                previewPersona(persona)
+            } label: {
+                Label("Preview", systemImage: "play.circle")
             }
         }
     }
@@ -200,22 +182,22 @@ struct AudioSettingsView: View {
 
             // Preview button
             Button {
-                previewVoicePack(selectedVoicePack)
+                previewPersona(selectedPersona)
             } label: {
                 HStack(spacing: AuraTheme.Spacing.sm) {
                     Image(systemName: "play.circle.fill")
                         .font(.system(size: 18))
-                    Text("Preview Voice Pack")
+                    Text("Preview Persona")
                         .font(AuraTheme.Fonts.subheading())
                 }
-                .foregroundColor(.neonBlue)
+                .foregroundColor(.aureaPrimary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AuraTheme.Spacing.md)
-                .background(Color.neonBlue.opacity(0.1))
+                .background(Color.aureaPrimary.opacity(0.1))
                 .cornerRadius(AuraTheme.Radius.medium)
                 .overlay(
                     RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
-                        .stroke(Color.neonBlue.opacity(0.3), lineWidth: 0.5)
+                        .stroke(Color.aureaPrimary.opacity(0.3), lineWidth: 0.5)
                 )
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -252,9 +234,11 @@ struct AudioSettingsView: View {
 
     // MARK: - Preview
 
-    private func previewVoicePack(_ pack: VoicePack) {
-        let line = VoicePackLines.sessionStart(for: pack)
-        let config = pack.voiceConfig
+    private func previewPersona(_ persona: PersonaMode) {
+        let engine = PersonaEngine()
+        engine.currentPersona = persona
+        let line = engine.lineFor(event: .sessionStart)
+        let config = persona.voiceConfig
 
         let utterance = AVSpeechUtterance(string: line)
         utterance.preUtteranceDelay = 0
@@ -280,8 +264,8 @@ struct AudioSettingsView: View {
 
     private func loadSettings() {
         let defaults = UserDefaults.standard
-        let packRaw = defaults.string(forKey: "announcer.voicePack") ?? ""
-        selectedVoicePack = VoicePack(rawValue: packRaw) ?? .esportAnnouncer
+        let personaRaw = defaults.string(forKey: "persona.mode") ?? ""
+        selectedPersona = PersonaMode(rawValue: personaRaw) ?? .spartan
         masterVolume = defaults.object(forKey: "audio.masterVolume") as? Float ?? 0.8
         voiceVolume = defaults.object(forKey: "audio.voiceVolume") as? Float ?? 0.8
         sfxVolume = defaults.object(forKey: "audio.sfxVolume") as? Float ?? 0.7
@@ -292,7 +276,7 @@ struct AudioSettingsView: View {
 
     private func saveSettings() {
         let defaults = UserDefaults.standard
-        defaults.set(selectedVoicePack.rawValue, forKey: "announcer.voicePack")
+        defaults.set(selectedPersona.rawValue, forKey: "persona.mode")
         defaults.set(masterVolume, forKey: "audio.masterVolume")
         defaults.set(voiceVolume, forKey: "audio.voiceVolume")
         defaults.set(sfxVolume, forKey: "audio.sfxVolume")

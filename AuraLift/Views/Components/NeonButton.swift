@@ -1,73 +1,78 @@
 import SwiftUI
 
-/// Cyberpunk-styled button with neon glow effect.
-struct NeonButton: View {
+/// Gold-accented button with glow effect.
+struct AureaButton: View {
     let title: String
     var icon: String? = nil
-    var color: Color = .neonBlue
+    var color: Color = .aureaPrimary
     var isCompact: Bool = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AuraTheme.Spacing.sm) {
+            HStack(spacing: AureaTheme.Spacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
                         .font(.system(size: isCompact ? 14 : 18, weight: .bold))
                 }
                 Text(title)
-                    .font(isCompact ? AuraTheme.Fonts.caption() : AuraTheme.Fonts.subheading())
+                    .font(isCompact ? AureaTheme.Fonts.caption() : AureaTheme.Fonts.subheading())
                     .fontWeight(.bold)
             }
-            .foregroundColor(.auraBlack)
-            .padding(.horizontal, isCompact ? AuraTheme.Spacing.lg : AuraTheme.Spacing.xl)
-            .padding(.vertical, isCompact ? AuraTheme.Spacing.sm : AuraTheme.Spacing.md)
+            .foregroundColor(.aureaVoid)
+            .padding(.horizontal, isCompact ? AureaTheme.Spacing.lg : AureaTheme.Spacing.xl)
+            .padding(.vertical, isCompact ? AureaTheme.Spacing.sm : AureaTheme.Spacing.md)
             .background(color)
-            .cornerRadius(AuraTheme.Radius.pill)
-            .shadow(color: color.opacity(0.6), radius: AuraTheme.Shadows.glowRadius, x: 0, y: 0)
+            .cornerRadius(AureaTheme.Radius.pill)
+            .shadow(color: color.opacity(0.6), radius: AureaTheme.Shadows.glowRadius, x: 0, y: 0)
         }
         .buttonStyle(.plain)
     }
 }
 
-/// Outlined variant of NeonButton
-struct NeonOutlineButton: View {
+/// Outlined variant of AureaButton
+struct AureaOutlineButton: View {
     let title: String
     var icon: String? = nil
-    var color: Color = .neonBlue
+    var color: Color = .aureaPrimary
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AuraTheme.Spacing.sm) {
+            HStack(spacing: AureaTheme.Spacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
                         .font(.system(size: 16, weight: .semibold))
                 }
                 Text(title)
-                    .font(AuraTheme.Fonts.subheading())
+                    .font(AureaTheme.Fonts.subheading())
                     .fontWeight(.semibold)
             }
             .foregroundColor(color)
-            .padding(.horizontal, AuraTheme.Spacing.xl)
-            .padding(.vertical, AuraTheme.Spacing.md)
+            .padding(.horizontal, AureaTheme.Spacing.xl)
+            .padding(.vertical, AureaTheme.Spacing.md)
             .overlay(
-                RoundedRectangle(cornerRadius: AuraTheme.Radius.pill)
+                RoundedRectangle(cornerRadius: AureaTheme.Radius.pill)
                     .stroke(color, lineWidth: 1.5)
             )
-            .shadow(color: color.opacity(0.3), radius: AuraTheme.Shadows.subtleGlowRadius, x: 0, y: 0)
+            .shadow(color: color.opacity(0.3), radius: AureaTheme.Shadows.subtleGlowRadius, x: 0, y: 0)
         }
         .buttonStyle(.plain)
     }
 }
 
+// MARK: - Legacy Aliases
+
+typealias NeonButton = AureaButton
+typealias NeonOutlineButton = AureaOutlineButton
+
 #Preview {
     VStack(spacing: 20) {
-        NeonButton(title: "START WORKOUT", icon: "play.fill", color: .cyberOrange) {}
-        NeonButton(title: "SCAN", icon: "camera.fill") {}
-        NeonButton(title: "Quick", isCompact: true) {}
-        NeonOutlineButton(title: "VIEW DETAILS", icon: "chevron.right") {}
+        AureaButton(title: "START SESSION", icon: "play.fill", color: .aureaPrimary) {}
+        AureaButton(title: "SCAN", icon: "camera.fill") {}
+        AureaButton(title: "Quick", isCompact: true) {}
+        AureaOutlineButton(title: "VIEW DETAILS", icon: "chevron.right") {}
     }
     .padding()
-    .background(Color.auraBlack)
+    .background(Color.aureaVoid)
 }

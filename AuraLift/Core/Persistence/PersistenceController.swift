@@ -1,6 +1,6 @@
 import CoreData
 
-/// Manages the CoreData stack for AuraLift.
+/// Manages the CoreData stack for AUREA.
 /// Builds the entire schema programmatically since we don't use .xcdatamodeld files.
 struct PersistenceController {
     static let shared = PersistenceController()

@@ -21,21 +21,31 @@ extension View {
         }
     }
 
-    /// Applies the AuraLift dark background to a full-screen view.
-    func auraBackground() -> some View {
+    /// Applies the AUREA dark background to a full-screen view.
+    func aureaBackground() -> some View {
         self
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.auraBlack.ignoresSafeArea())
+            .background(Color.aureaVoid.ignoresSafeArea())
     }
 
-    /// Standard section header style for AuraLift.
-    func auraSectionHeader() -> some View {
+    /// Standard section header style for AUREA.
+    func aureaSectionHeader() -> some View {
         self
-            .font(AuraTheme.Fonts.subheading())
-            .foregroundColor(.auraTextPrimary)
+            .font(AureaTheme.Fonts.subheading())
+            .foregroundColor(.aureaTextPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, AuraTheme.Spacing.lg)
-            .padding(.top, AuraTheme.Spacing.xl)
-            .padding(.bottom, AuraTheme.Spacing.sm)
+            .padding(.horizontal, AureaTheme.Spacing.lg)
+            .padding(.top, AureaTheme.Spacing.xl)
+            .padding(.bottom, AureaTheme.Spacing.sm)
+    }
+
+    // MARK: - Legacy Aliases
+
+    func auraBackground() -> some View {
+        aureaBackground()
+    }
+
+    func auraSectionHeader() -> some View {
+        aureaSectionHeader()
     }
 }

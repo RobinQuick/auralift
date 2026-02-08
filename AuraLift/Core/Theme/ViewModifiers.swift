@@ -1,15 +1,15 @@
 import SwiftUI
 
-// MARK: - Neon Glow Card Modifier
+// MARK: - Aurea Glow Card Modifier
 
-struct NeonGlowModifier: ViewModifier {
+struct AureaGlowModifier: ViewModifier {
     var color: Color
     var radius: CGFloat
     var cornerRadius: CGFloat
 
     func body(content: Content) -> some View {
         content
-            .background(Color.auraSurface)
+            .background(Color.aureaSurface)
             .cornerRadius(cornerRadius)
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
@@ -19,9 +19,9 @@ struct NeonGlowModifier: ViewModifier {
     }
 }
 
-// MARK: - Cyberpunk Text Style
+// MARK: - Aurea Text Style
 
-struct CyberpunkTextModifier: ViewModifier {
+struct AureaTextModifier: ViewModifier {
     var color: Color
 
     func body(content: Content) -> some View {
@@ -31,17 +31,17 @@ struct CyberpunkTextModifier: ViewModifier {
     }
 }
 
-// MARK: - Dark Card Background
+// MARK: - Aurea Card Background
 
-struct DarkCardModifier: ViewModifier {
+struct AureaCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(AuraTheme.Spacing.lg)
-            .background(Color.auraSurfaceElevated)
-            .cornerRadius(AuraTheme.Radius.medium)
+            .padding(AureaTheme.Spacing.lg)
+            .background(Color.aureaSurfaceElevated)
+            .cornerRadius(AureaTheme.Radius.medium)
             .overlay(
-                RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
-                    .stroke(Color.auraBorder, lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: AureaTheme.Radius.medium)
+                    .stroke(Color.aureaBorder, lineWidth: 0.5)
             )
     }
 }
@@ -65,23 +65,41 @@ struct PulseModifier: ViewModifier {
 // MARK: - View Extension
 
 extension View {
-    func neonGlow(
-        color: Color = .neonBlue,
-        radius: CGFloat = AuraTheme.Shadows.glowRadius,
-        cornerRadius: CGFloat = AuraTheme.Radius.medium
+    func aureaGlow(
+        color: Color = .aureaPrimary,
+        radius: CGFloat = AureaTheme.Shadows.glowRadius,
+        cornerRadius: CGFloat = AureaTheme.Radius.medium
     ) -> some View {
-        modifier(NeonGlowModifier(color: color, radius: radius, cornerRadius: cornerRadius))
+        modifier(AureaGlowModifier(color: color, radius: radius, cornerRadius: cornerRadius))
     }
 
-    func cyberpunkText(color: Color = .neonBlue) -> some View {
-        modifier(CyberpunkTextModifier(color: color))
+    func aureaText(color: Color = .aureaPrimary) -> some View {
+        modifier(AureaTextModifier(color: color))
     }
 
-    func darkCard() -> some View {
-        modifier(DarkCardModifier())
+    func aureaCard() -> some View {
+        modifier(AureaCardModifier())
     }
 
     func pulse() -> some View {
         modifier(PulseModifier())
+    }
+
+    // MARK: - Legacy Aliases
+
+    func neonGlow(
+        color: Color = .aureaPrimary,
+        radius: CGFloat = AureaTheme.Shadows.glowRadius,
+        cornerRadius: CGFloat = AureaTheme.Radius.medium
+    ) -> some View {
+        aureaGlow(color: color, radius: radius, cornerRadius: cornerRadius)
+    }
+
+    func cyberpunkText(color: Color = .aureaPrimary) -> some View {
+        aureaText(color: color)
+    }
+
+    func darkCard() -> some View {
+        aureaCard()
     }
 }

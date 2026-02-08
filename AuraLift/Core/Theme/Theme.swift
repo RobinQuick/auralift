@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Central theme configuration for the AuraLift cyberpunk aesthetic.
-enum AuraTheme {
+/// Central theme configuration for the AUREA clinical luxury aesthetic.
+enum AureaTheme {
     // MARK: - Spacing
 
     enum Spacing {
@@ -59,7 +59,7 @@ enum AuraTheme {
     // MARK: - Shadows
 
     enum Shadows {
-        static func neonGlow(color: Color = .neonBlue, radius: CGFloat = 8) -> some View {
+        static func aureaGlow(color: Color = .aureaPrimary, radius: CGFloat = 8) -> some View {
             EmptyView()
                 .shadow(color: color.opacity(0.6), radius: radius)
         }
@@ -80,17 +80,17 @@ enum AuraTheme {
 
     // MARK: - Gradients
 
-    static var neonBlueGradient: LinearGradient {
+    static var primaryGradient: LinearGradient {
         LinearGradient(
-            colors: [.neonBlue, .neonBlue.opacity(0.6)],
+            colors: [.aureaPrimary, .aureaPrimary.opacity(0.6)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
     }
 
-    static var cyberOrangeGradient: LinearGradient {
+    static var secondaryGradient: LinearGradient {
         LinearGradient(
-            colors: [.cyberOrange, .cyberOrange.opacity(0.6)],
+            colors: [.aureaSecondary, .aureaSecondary.opacity(0.6)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -98,9 +98,13 @@ enum AuraTheme {
 
     static var darkSurfaceGradient: LinearGradient {
         LinearGradient(
-            colors: [.auraSurface, .auraBlack],
+            colors: [.aureaSurface, .aureaVoid],
             startPoint: .top,
             endPoint: .bottom
         )
     }
 }
+
+// MARK: - Legacy Alias
+
+typealias AuraTheme = AureaTheme

@@ -1,10 +1,10 @@
-# AuraLift
+# AUREA
 
-> AI-driven iOS bodybuilding app with Computer Vision, Biomechanics, and E-sport Gamification
+> AI-driven iOS bodybuilding app with Computer Vision, Biomechanics, and Prestige League — Engineered Aesthetics
 
-## What is AuraLift?
+## What is AUREA?
 
-AuraLift uses your iPhone camera to analyze exercise form in real-time, measure your body proportions for personalized training, and gamifies your workouts with an e-sport ranking system.
+AUREA uses your iPhone camera to analyze exercise form in real-time, measure your body proportions for personalized training, and features a prestige league system with bio-decisional intelligence.
 
 ## Documentation
 
@@ -13,7 +13,7 @@ AuraLift uses your iPhone camera to analyze exercise form in real-time, measure 
 | [spec.md](./spec.md) | Product specification and feature roadmap |
 | [architecture.md](./architecture.md) | System design, data flow, MVVM+Services |
 | [database-schema.md](./database-schema.md) | CoreData entities (18) and relationships |
-| [design-system.md](./design-system.md) | Cyberpunk visual language (colors, spacing, components) |
+| [design-system.md](./design-system.md) | AUREA clinical luxury visual language (gold, spacing, components) |
 | [user-flows.md](./user-flows.md) | User journeys (onboarding, workout, ranking) |
 | [tech-stack.md](./tech-stack.md) | Technology choices (100% Apple frameworks) |
 | [CLAUDE.md](./CLAUDE.md) | AI assistant coding conventions |
@@ -35,6 +35,7 @@ AuraLift uses your iPhone camera to analyze exercise form in real-time, measure 
 | 10 | AR & Social | COMPLETE |
 | 11 | Monetization & Gamification | COMPLETE |
 | 12 | Pareto Aesthetic Engine (Smart Program) | COMPLETE |
+| 13 | AUREA Rebranding & Architecture de Domination | COMPLETE |
 
 ## Tech Stack
 

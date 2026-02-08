@@ -25,15 +25,15 @@ struct ProfileView: View {
     @State private var betaUnlockSuccess = false
 
     private let settingsItems: [(icon: String, label: String, color: Color)] = [
-        ("person.fill", "Edit Profile", .neonPurple),
-        ("ruler.fill", "Units & Measurements", .neonBlue),
-        ("speaker.wave.3.fill", "Audio & Announcer", .neonBlue),
-        ("bell.fill", "Notifications", .cyberOrange),
-        ("heart.fill", "Health Integrations", .neonGreen),
-        ("camera.fill", "Camera Settings", .neonBlue),
-        ("lock.shield.fill", "Privacy", .auraTextSecondary),
-        ("questionmark.circle.fill", "Help & Support", .auraTextSecondary),
-        ("info.circle.fill", "About AuraLift", .auraTextSecondary),
+        ("person.fill", "Edit Profile", .aureaMystic),
+        ("ruler.fill", "Units & Measurements", .aureaPrimary),
+        ("speaker.wave.3.fill", "Persona & Voice", .aureaPrimary),
+        ("bell.fill", "Notifications", .aureaSecondary),
+        ("heart.fill", "Health Integrations", .aureaSuccess),
+        ("camera.fill", "Camera Settings", .aureaPrimary),
+        ("lock.shield.fill", "Privacy", .aureaTextSecondary),
+        ("questionmark.circle.fill", "Help & Support", .aureaTextSecondary),
+        ("info.circle.fill", "About AUREA", .aureaTextSecondary),
     ]
 
     var body: some View {
@@ -187,7 +187,7 @@ struct ProfileView: View {
 
             VStack(spacing: AuraTheme.Spacing.sm) {
                 ForEach(settingsItems, id: \.label) { item in
-                    if item.label == "Audio & Announcer" {
+                    if item.label == "Persona & Voice" {
                         Button { showAudioSettings = true } label: {
                             settingsRow(item)
                         }
@@ -195,7 +195,7 @@ struct ProfileView: View {
                         Button { showPrivacyInfo = true } label: {
                             settingsRow(item)
                         }
-                    } else if item.label == "About AuraLift" {
+                    } else if item.label == "About AUREA" {
                         Button {
                             betaTapCount += 1
                             if betaTapCount >= 5 {
@@ -330,7 +330,7 @@ struct ProfileView: View {
                 .font(AuraTheme.Fonts.heading())
                 .cyberpunkText(color: .neonGold)
 
-            Text("Entre ton code d'accès alpha pour débloquer AuraLift Pro pendant 3 mois.")
+            Text("Entre ton code d'accès alpha pour débloquer AUREA Pro pendant 3 mois.")
                 .font(AuraTheme.Fonts.body())
                 .foregroundColor(.auraTextSecondary)
                 .multilineTextAlignment(.center)

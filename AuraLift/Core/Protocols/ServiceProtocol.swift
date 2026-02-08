@@ -1,6 +1,6 @@
 import Foundation
 
-/// Base protocol for all AuraLift services.
+/// Base protocol for all AUREA services.
 /// Services encapsulate business logic and external integrations.
 protocol ServiceProtocol {
     /// Whether the service has been initialized and is ready to use.
