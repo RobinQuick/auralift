@@ -72,8 +72,6 @@ targets:
         group: Services/PoseAnalysis
       - path: AuraLift/Services/Ranking
         group: Services/Ranking
-      - path: AuraLift/Services/Science
-        group: Services/Science
       - path: AuraLift/Services/SmartProgram
         group: Services/SmartProgram
       - path: AuraLift/Services/Social
