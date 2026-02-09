@@ -1,0 +1,6 @@
+/* French localization for Info.plist usage descriptions */
+
+"NSCameraUsageDescription" = "Nécessaire pour le scan morphologique et l'analyse de posture en temps réel. Aucune vidéo n'est envoyée sur un serveur.";
+"NSHealthShareUsageDescription" = "Nécessaire pour lire votre fréquence cardiaque, votre sommeil et votre VFC afin de calculer votre niveau de récupération.";
+"NSHealthUpdateUsageDescription" = "Utilisé pour synchroniser vos calories et votre poids afin d'ajuster le plan nutritionnel.";
+"NSMicrophoneUsageDescription" = "Utilisé pour calibrer l'environnement sonore.";

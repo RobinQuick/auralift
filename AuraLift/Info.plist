@@ -3,14 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Nécessaire pour le scan morphologique et l'analyse de posture en temps réel. Aucune vidéo n'est envoyée sur un serveur.</string>
+	<string>Required for morphological scanning and real-time posture analysis. No video is sent to any server.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Nécessaire pour lire votre fréquence cardiaque et calculer votre récupération.</string>
+	<string>Required to read your heart rate, sleep, and HRV to calculate recovery readiness.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Utilisé pour synchroniser vos calories et votre poids afin d'ajuster le plan nutritionnel.</string>
+	<string>Used to sync your calories and weight to adjust your nutrition plan.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Utilisé pour calibrer l'environnement sonore.</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Pour sécuriser l'accès à vos données biométriques.</string>
+	<string>Used to calibrate the audio environment.</string>
 </dict>
 </plist>

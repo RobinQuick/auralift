@@ -108,6 +108,8 @@ targets:
         group: Views/Workout
       - path: AuraLift/Resources/Assets.xcassets
         type: folder
+      - path: AuraLift/fr.lproj
+        type: folder
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.aurea.app
@@ -121,6 +123,9 @@ targets:
           - UIInterfaceOrientationPortrait
         UIRequiresFullScreen: true
         ITSAppUsesNonExemptEncryption: false
+        LSRequiresIPhoneOS: true
+        UIRequiredDeviceCapabilities:
+          - arm64
     entitlements:
       path: AuraLift/AuraLift.entitlements
     dependencies:
