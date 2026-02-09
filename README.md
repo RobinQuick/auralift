@@ -17,6 +17,7 @@ AUREA uses your iPhone camera to analyze exercise form in real-time, measure you
 | [user-flows.md](./user-flows.md) | User journeys (onboarding, workout, ranking) |
 | [tech-stack.md](./tech-stack.md) | Technology choices (100% Apple frameworks) |
 | [CLAUDE.md](./CLAUDE.md) | AI assistant coding conventions |
+| [IOS_RELEASE_CHECKLIST.md](./IOS_RELEASE_CHECKLIST.md) | iOS production readiness and TestFlight submission checklist |
 
 ## Phase Status
 
