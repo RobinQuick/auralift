@@ -1,25 +1,26 @@
 import Foundation
 
 /// Fetches the latest exercise science research summaries to keep training protocols current.
-/// Simulates a research feed that can inform protocol adjustments.
+/// This service is intentionally unavailable until real backend endpoints are implemented.
 final class ScienceUpdateService: ServiceProtocol {
 
-    var isAvailable: Bool { true }
+    enum ScienceServiceError: Error {
+        case notConfigured
+    }
+
+    var isAvailable: Bool { false }
 
     func initialize() async throws {
-        // TODO: Configure research feed endpoints
+        throw ScienceServiceError.notConfigured
     }
 
     /// Fetches the latest research updates relevant to the user's training.
     func fetchLatestUpdates() async throws -> [[String: String]] {
-        // TODO: Query research summary API
-        // TODO: Parse and filter for relevant topics
-        return []
+        throw ScienceServiceError.notConfigured
     }
 
     /// Checks if any new research contradicts current training protocols.
     func checkForProtocolConflicts() async throws -> [String] {
-        // TODO: Compare fetched research against active protocol assumptions
-        return []
+        throw ScienceServiceError.notConfigured
     }
 }
