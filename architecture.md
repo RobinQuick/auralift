@@ -1,4 +1,4 @@
-# Architecture — AuraLift iOS
+# Architecture — AUREA iOS
 
 > MVVM + Services architecture for SwiftUI with CoreData
 
@@ -174,9 +174,9 @@ User taps START → WorkoutSession created
 | Queue | Label | QoS | Purpose |
 |-------|-------|-----|---------|
 | Main | - | .userInteractive | SwiftUI, @Published writes |
-| Camera Session | `com.auralift.camera.session` | .default | AVCaptureSession config |
-| Camera Data | `com.auralift.camera.dataOutput` | .default | Frame delivery |
-| Frame Processor | `com.auralift.frameProcessor` | .userInitiated | Vision inference |
+| Camera Session | `com.aurea.camera.session` | .default | AVCaptureSession config |
+| Camera Data | `com.aurea.camera.dataOutput` | .default | Frame delivery |
+| Frame Processor | `com.aurea.frameProcessor` | .userInitiated | Vision inference |
 
 ## Key Design Decisions
 

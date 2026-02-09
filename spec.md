@@ -1,10 +1,10 @@
-# Product Specification — AuraLift
+# Product Specification — AUREA
 
 > AI-driven iOS bodybuilding app with Computer Vision, Biomechanics, and E-sport Gamification
 
 ## Overview
 
-**Product Name:** AuraLift
+**Product Name:** AUREA
 **One-liner:** The first bodybuilding app that sees your body, understands your anatomy, and gamifies every rep.
 **Problem Statement:** Most lifters train with generic programs that ignore their unique skeletal proportions, have no real-time form feedback, and lack meaningful motivation systems beyond basic logging.
 

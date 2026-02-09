@@ -1,6 +1,6 @@
-# Design System — AuraLift Cyberpunk Aesthetic
+# Design System — AUREA Clinical Luxury Gold
 
-> Visual language for a Shadow Athlete: OLED black, neon accents, e-sport energy
+> Visual language for the Prestige Athlete: OLED black, gold accents, clinical luxury
 
 ## Design Principles
 
@@ -15,17 +15,19 @@
 
 ### Brand Colors (defined in `Color+AuraLift.swift`)
 ```swift
-Color.auraBlack           // #000000 — OLED black, primary background
-Color.neonBlue            // #00D4FF — Primary accent, data, links
-Color.cyberOrange         // #FF6B00 — Secondary accent, CTAs, workout actions
+Color.aureaVoid            // #000000 — OLED black, primary background
+Color.aureaPrimary         // #D4AF37 — Primary accent (Gold)
+Color.aureaSecondary       // #C0C0C0 — Secondary accent (Silver)
+// Legacy aliases (auraBlack, neonBlue, cyberOrange) still compile
 ```
 
 ### Status Colors
 ```swift
-Color.neonGreen           // #00FF88 — Success, optimal form (score >= 90)
-Color.neonRed             // #FF4444 — Danger, poor form (score < 70)
-Color.neonGold            // #FFD700 — Achievements, gold tier, combo streaks
-Color.neonPurple          // #9B59B6 — Special/mythic tier, premium features
+Color.aureaSuccess         // #4CAF50 — Success, optimal form
+Color.aureaAlert           // #CF6679 — Danger, poor form
+Color.aureaPrestige        // #FFD700 — Achievements, gold tier
+Color.aureaMystic          // #7C4DFF — Special/elite, premium features
+// Legacy aliases (neonGreen, neonRed, neonGold, neonPurple) still compile
 ```
 
 ### Surface Colors
@@ -134,26 +136,30 @@ AuraTheme.darkSurfaceGradient  // auraSurface → auraBlack (top→bottom)
 
 ## View Modifiers (defined in `ViewModifiers.swift`)
 
-### `.neonGlow(color:radius:cornerRadius:)`
-Applies card background + neon border stroke + glow shadow.
+### `.aureaGlow(color:radius:cornerRadius:)`
+Applies card background + gold border stroke + glow shadow.
 ```swift
-someView.neonGlow(color: .neonBlue, radius: 10, cornerRadius: 12)
+someView.aureaGlow(color: .aureaPrimary, radius: 10, cornerRadius: 12)
+// Legacy alias: .neonGlow() still compiles
 ```
 
-### `.cyberpunkText(color:)`
+### `.aureaText(color:)`
 Colored foreground + glow shadow for text.
 ```swift
-Text("SCORE").cyberpunkText(color: .cyberOrange)
+Text("SCORE").aureaText(color: .aureaPrimary)
+// Legacy alias: .cyberpunkText() still compiles
 ```
 
-### `.darkCard()`
+### `.aureaCard()`
 Standard card: padding + elevated surface + border stroke.
+Legacy alias: `.darkCard()` still compiles.
 
 ### `.pulse()`
 Repeating scale animation (1.0 → 1.05). Used for combo counters, active states.
 
-### `.auraBackground()`
+### `.aureaBackground()`
 Full-screen OLED black background ignoring safe area.
+Legacy alias: `.auraBackground()` still compiles.
 
 ---
 

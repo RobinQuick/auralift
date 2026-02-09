@@ -1,6 +1,6 @@
 # Database Schema — CoreData
 
-> Programmatic CoreData model for AuraLift (no .xcdatamodeld)
+> Programmatic CoreData model for AUREA (no .xcdatamodeld)
 
 ## Overview
 

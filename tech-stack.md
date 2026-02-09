@@ -1,4 +1,4 @@
-# Tech Stack — AuraLift
+# Tech Stack — AUREA
 
 > Native iOS app built entirely with Apple frameworks
 

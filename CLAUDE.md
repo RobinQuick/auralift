@@ -154,9 +154,9 @@ final class ExampleService: ObservableObject, ServiceProtocol {
 | Queue | Label | Purpose |
 |-------|-------|---------|
 | Main | `DispatchQueue.main` | SwiftUI updates, @Published writes |
-| Camera Session | `com.auralift.camera.session` | AVCaptureSession start/stop/config |
-| Camera Data | `com.auralift.camera.dataOutput` | Frame delivery callbacks |
-| Frame Processor | `com.auralift.frameProcessor` | Vision inference (backpressure-protected) |
+| Camera Session | `com.aurea.camera.session` | AVCaptureSession start/stop/config |
+| Camera Data | `com.aurea.camera.dataOutput` | Frame delivery callbacks |
+| Frame Processor | `com.aurea.frameProcessor` | Vision inference (backpressure-protected) |
 
 ---
 

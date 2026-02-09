@@ -1,6 +1,6 @@
-# TEST_GUIDE.md — AuraLift Physical Device Testing
+# TEST_GUIDE.md — AUREA Physical Device Testing
 
-> Guide for testing the 5 key features of AuraLift on a physical iPhone.
+> Guide for testing the 5 key features of AUREA on a physical iPhone.
 > Simulator is insufficient — camera, pose detection, HealthKit, and haptics require real hardware.
 
 ---
@@ -38,7 +38,7 @@ Real-time body pose detection via Vision framework with skeleton overlay.
 - High CPU (>50%) at idle → frame processing not throttled properly
 
 ### Permission Denial Test
-1. Go to Settings → AuraLift → disable Camera
+1. Go to Settings → AUREA → disable Camera
 2. Return to Workout tab — **Verify**: No crash, shows appropriate messaging
 3. Re-enable camera, return to app — **Verify**: Camera resumes
 
@@ -228,11 +228,11 @@ These tests complement the workout flow above.
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
-| Black camera screen | Permission not granted | Settings → AuraLift → Camera |
+| Black camera screen | Permission not granted | Settings → AUREA → Camera |
 | No skeleton overlay | Vision not detecting pose | Better lighting, step back further |
 | Rep counter not working | Wrong exercise profile | Ensure correct exercise selected |
 | Velocity always 0 | No height calibration | Set height in Profile or do MorphoScan |
-| HealthKit data empty | Permissions denied | Settings → Health → AuraLift → enable all |
+| HealthKit data empty | Permissions denied | Settings → Health → AUREA → enable all |
 | Share card blank | ImageRenderer threading | Should run on @MainActor |
 | Ghost skeleton wrong size | No MorphoScan data | Perform a MorphoScan first |
 | Audio not playing | Silent mode on | Check device ringer switch |
