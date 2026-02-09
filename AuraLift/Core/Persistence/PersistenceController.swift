@@ -1,9 +1,15 @@
 import CoreData
+import os
 
 /// Manages the CoreData stack for AUREA.
 /// Builds the entire schema programmatically since we don't use .xcdatamodeld files.
 struct PersistenceController {
     static let shared = PersistenceController()
+
+    /// Set to true if the persistent store failed to load and we fell back to in-memory.
+    static var storeLoadFailed = false
+
+    private static let logger = Logger(subsystem: "com.aurea.app", category: "Persistence")
 
     /// In-memory store for SwiftUI previews and testing
     static var preview: PersistenceController = {
@@ -26,7 +32,18 @@ struct PersistenceController {
 
         container.loadPersistentStores { description, error in
             if let error = error as NSError? {
-                fatalError("CoreData failed to load: \(error), \(error.userInfo)")
+                Self.logger.critical("CoreData failed to load: \(error.localizedDescription), \(error.userInfo)")
+
+                // Attempt in-memory fallback so the app doesn't crash
+                let fallbackDescription = NSPersistentStoreDescription()
+                fallbackDescription.type = NSInMemoryStoreType
+                self.container.persistentStoreDescriptions = [fallbackDescription]
+                self.container.loadPersistentStores { _, fallbackError in
+                    if let fallbackError {
+                        Self.logger.critical("In-memory fallback also failed: \(fallbackError.localizedDescription)")
+                    }
+                }
+                Self.storeLoadFailed = true
             }
         }
 

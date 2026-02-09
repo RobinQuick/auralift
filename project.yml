@@ -12,7 +12,7 @@ settings:
     SWIFT_VERSION: "5.9"
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "CTK8664PKS"
     CODE_SIGN_STYLE: Automatic
     INFOPLIST_FILE: AuraLift/Info.plist
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -34,6 +34,8 @@ targets:
     sources:
       - path: AuraLift/App
         group: App
+      - path: AuraLift/Core/Constants
+        group: Core/Constants
       - path: AuraLift/Core/Extensions
         group: Core/Extensions
       - path: AuraLift/Core/Persistence
@@ -52,12 +54,18 @@ targets:
         group: Services/Audio
       - path: AuraLift/Services/BioAdaptive
         group: Services/BioAdaptive
+      - path: AuraLift/Services/Intelligence
+        group: Services/Intelligence
+      - path: AuraLift/Services/League
+        group: Services/League
       - path: AuraLift/Services/Camera
         group: Services/Camera
       - path: AuraLift/Services/HealthKit
         group: Services/HealthKit
       - path: AuraLift/Services/MorphoScanner
         group: Services/MorphoScanner
+      - path: AuraLift/Services/Monetization
+        group: Services/Monetization
       - path: AuraLift/Services/Nutrition
         group: Services/Nutrition
       - path: AuraLift/Services/PoseAnalysis
@@ -66,6 +74,8 @@ targets:
         group: Services/Ranking
       - path: AuraLift/Services/Science
         group: Services/Science
+      - path: AuraLift/Services/SmartProgram
+        group: Services/SmartProgram
       - path: AuraLift/Services/Social
         group: Services/Social
       - path: AuraLift/Services/VelocityTracker
@@ -86,6 +96,12 @@ targets:
         group: Views/Ranking
       - path: AuraLift/Views/Recovery
         group: Views/Recovery
+      - path: AuraLift/Views/League
+        group: Views/League
+      - path: AuraLift/Views/Monetization
+        group: Views/Monetization
+      - path: AuraLift/Views/SmartProgram
+        group: Views/SmartProgram
       - path: AuraLift/Views/Social
         group: Views/Social
       - path: AuraLift/Views/Workout
