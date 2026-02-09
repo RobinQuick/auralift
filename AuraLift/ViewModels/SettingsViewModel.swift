@@ -65,9 +65,9 @@ final class SettingsViewModel: ObservableObject {
 
         // Reset all UserDefaults flags
         let userDefaultsKeys = [
-            "com.auralift.seedDataLoaded",
-            "com.auralift.machineSeedDataLoaded",
-            "com.auralift.privacyConsentAccepted",
+            "com.aurea.seedDataLoaded",
+            "com.aurea.machineSeedDataLoaded",
+            "com.aurea.privacyConsentAccepted",
             "audio.masterVolume",
             "audio.voiceVolume",
             "audio.sfxVolume",
@@ -75,11 +75,11 @@ final class SettingsViewModel: ObservableObject {
             "audio.sfxEnabled",
             "audio.hapticsEnabled",
             "announcer.voicePack",
-            "com.auralift.seasonInitialized",
-            "com.auralift.streak.count",
-            "com.auralift.streak.lastActiveDate",
-            "com.auralift.dailyQuests",
-            "com.auralift.dailyQuestsDate"
+            "com.aurea.seasonInitialized",
+            "com.aurea.streak.count",
+            "com.aurea.streak.lastActiveDate",
+            "com.aurea.dailyQuests",
+            "com.aurea.dailyQuestsDate"
         ]
 
         for key in userDefaultsKeys {

@@ -24,7 +24,7 @@ final class FrameProcessor: ObservableObject, ServiceProtocol {
     private var targetFPS: Int = 30
     private var lastProcessedTime: TimeInterval = 0
     private var isCurrentlyProcessing = false
-    private let processingQueue = DispatchQueue(label: "com.auralift.frameProcessor", qos: .userInitiated)
+    private let processingQueue = DispatchQueue(label: "com.aurea.frameProcessor", qos: .userInitiated)
 
     private var minFrameInterval: TimeInterval {
         1.0 / Double(targetFPS)

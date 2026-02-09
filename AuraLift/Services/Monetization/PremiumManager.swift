@@ -31,7 +31,7 @@ final class PremiumManager: ObservableObject {
 
     // MARK: - Keychain Keys
 
-    private static let betaExpiryKey = "com.auralift.betaExpiry"
+    private static let betaExpiryKey = "com.aurea.betaExpiry"
     private static let betaCode = "ALPHA2026"
 
     // MARK: - Init

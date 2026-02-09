@@ -87,7 +87,7 @@ final class AudioManager: ObservableObject, ServiceProtocol {
     private let synthesizer = AVSpeechSynthesizer()
     private var audioEngine: AVAudioEngine?
     private var playerNode: AVAudioPlayerNode?
-    private let audioQueue = DispatchQueue(label: "com.auralift.audio", qos: .userInteractive)
+    private let audioQueue = DispatchQueue(label: "com.aurea.audio", qos: .userInteractive)
 
     // MARK: - State
 

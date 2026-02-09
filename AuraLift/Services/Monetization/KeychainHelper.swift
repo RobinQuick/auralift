@@ -7,7 +7,7 @@ import Security
 /// Used for beta code expiry storage (survives app reinstall).
 struct KeychainHelper {
 
-    private static let service = "com.auralift.keychain"
+    private static let service = "com.aurea.keychain"
 
     // MARK: - Save
 

@@ -42,8 +42,8 @@ final class CameraManager: NSObject, ObservableObject, ServiceProtocol {
     let captureSession = AVCaptureSession()
     private var videoDeviceInput: AVCaptureDeviceInput?
     private let videoDataOutput = AVCaptureVideoDataOutput()
-    private let sessionQueue = DispatchQueue(label: "com.auralift.camera.session")
-    private let dataOutputQueue = DispatchQueue(label: "com.auralift.camera.dataOutput")
+    private let sessionQueue = DispatchQueue(label: "com.aurea.camera.session")
+    private let dataOutputQueue = DispatchQueue(label: "com.aurea.camera.dataOutput")
 
     // MARK: - Frame Callback
 

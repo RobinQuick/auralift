@@ -1,6 +1,6 @@
 name: AuraLift
 options:
-  bundleIdPrefix: com.auralift
+  bundleIdPrefix: com.aurea
   deploymentTarget:
     iOS: "16.0"
   xcodeVersion: "15.0"
@@ -110,7 +110,7 @@ targets:
         type: folder
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.auralift.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.aurea.app
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: false
     info:

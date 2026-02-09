@@ -77,9 +77,9 @@ final class CyberStreakManager: ObservableObject {
 
     // MARK: - UserDefaults Keys
 
-    private static let streakCountKey = "com.auralift.streak.count"
-    private static let lastActiveDateKey = "com.auralift.streak.lastActiveDate"
-    private static let freezeUsedMonthKey = "com.auralift.streak.freezeUsedMonth"
+    private static let streakCountKey = "com.aurea.streak.count"
+    private static let lastActiveDateKey = "com.aurea.streak.lastActiveDate"
+    private static let freezeUsedMonthKey = "com.aurea.streak.freezeUsedMonth"
 
     // MARK: - Published State
 

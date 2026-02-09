@@ -103,8 +103,8 @@ final class DailyQuestManager: ObservableObject {
 
     // MARK: - UserDefaults Keys
 
-    private static let questsKey = "com.auralift.dailyQuests"
-    private static let questDateKey = "com.auralift.dailyQuestsDate"
+    private static let questsKey = "com.aurea.dailyQuests"
+    private static let questDateKey = "com.aurea.dailyQuestsDate"
 
     // MARK: - Published State
 
@@ -320,12 +320,12 @@ final class DailyQuestManager: ObservableObject {
 
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
             let request = UNNotificationRequest(
-                identifier: "com.auralift.dailyOps",
+                identifier: "com.aurea.dailyOps",
                 content: content,
                 trigger: trigger
             )
 
-            center.removePendingNotificationRequests(withIdentifiers: ["com.auralift.dailyOps"])
+            center.removePendingNotificationRequests(withIdentifiers: ["com.aurea.dailyOps"])
             center.add(request)
         }
     }

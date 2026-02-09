@@ -10,9 +10,9 @@ final class StoreKitManager {
     // MARK: - Product IDs
 
     enum ProductID: String, CaseIterable {
-        case monthly  = "com.auralift.pro.monthly"
-        case yearly   = "com.auralift.pro.yearly"
-        case lifetime = "com.auralift.pro.lifetime"
+        case monthly  = "com.aurea.pro.monthly"
+        case yearly   = "com.aurea.pro.yearly"
+        case lifetime = "com.aurea.pro.lifetime"
 
         var isSubscription: Bool {
             self != .lifetime

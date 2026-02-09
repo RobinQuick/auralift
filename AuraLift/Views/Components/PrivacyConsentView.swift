@@ -8,7 +8,7 @@ struct PrivacyConsentView: View {
 
     // MARK: - Constants
 
-    static let consentKey = "com.auralift.privacyConsentAccepted"
+    static let consentKey = "com.aurea.privacyConsentAccepted"
 
     static var isConsentAccepted: Bool {
         UserDefaults.standard.bool(forKey: consentKey)

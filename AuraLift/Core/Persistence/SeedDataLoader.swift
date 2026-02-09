@@ -3,10 +3,10 @@ import CoreData
 
 /// Handles loading seed data into CoreData on first launch.
 struct SeedDataLoader {
-    private static let seedKey = "com.auralift.seedDataLoaded"
+    private static let seedKey = "com.aurea.seedDataLoaded"
 
-    private static let machinesSeedKey = "com.auralift.machineSeedDataLoaded"
-    private static let seasonSeedKey = "com.auralift.seasonInitialized"
+    private static let machinesSeedKey = "com.aurea.machineSeedDataLoaded"
+    private static let seasonSeedKey = "com.aurea.seasonInitialized"
 
     /// Load exercise database if not already loaded.
     static func loadIfNeeded(into context: NSManagedObjectContext) {
