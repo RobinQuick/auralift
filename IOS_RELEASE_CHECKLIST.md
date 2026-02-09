@@ -67,3 +67,19 @@ xcodebuild -project AuraLift.xcodeproj -scheme AuraLift -configuration Debug -de
 ```
 
 Optionally add unit/UI tests once test targets are created.
+
+## 7) Xcode documentation generation (DocC)
+
+To generate API documentation from Xcode/CLI:
+
+```bash
+xcodebuild docbuild \
+  -project AuraLift.xcodeproj \
+  -scheme AuraLift \
+  -destination 'generic/platform=iOS'
+```
+
+In Xcode, use **Product → Build Documentation** and review warnings before release.
+
+If you plan to publish docs, add a dedicated DocC catalog and host generated archives as part of CI artifacts.
+

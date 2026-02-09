@@ -149,6 +149,48 @@ final class HealthKitManager: ServiceProtocol {
         }
     }
 
+    /// Fetches sleep duration history for the last N nights in hours.
+    /// Each element represents one night, newest first.
+    func fetchRecentSleepHistory(days: Int = 7) async -> [Double] {
+        guard let sleepType = HKCategoryType.categoryType(forIdentifier: .sleepAnalysis) else {
+            return []
+        }
+
+        let calendar = Calendar.current
+        let now = Date()
+        let startDate = calendar.date(byAdding: .day, value: -days, to: now) ?? now
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictEndDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: sleepType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let sleepSamples = samples as? [HKCategorySample], !sleepSamples.isEmpty else {
+                    continuation.resume(returning: [])
+                    return
+                }
+
+                var nightlySleep: [Date: Double] = [:]
+                for sample in sleepSamples where sample.value != HKCategoryValueSleepAnalysis.inBed.rawValue {
+                    let normalizedNight = self.nightAnchor(for: sample.startDate, calendar: calendar)
+                    let duration = sample.endDate.timeIntervalSince(sample.startDate) / 3600.0
+                    nightlySleep[normalizedNight, default: 0] += duration
+                }
+
+                let ordered = nightlySleep
+                    .sorted { $0.key > $1.key }
+                    .map(\.value)
+                continuation.resume(returning: ordered)
+            }
+            healthStore.execute(query)
+        }
+    }
+
     // MARK: - Active Energy
 
     /// Fetches today's total active energy burned in kcal.
@@ -192,5 +234,15 @@ final class HealthKitManager: ServiceProtocol {
             }
             healthStore.execute(query)
         }
+    }
+
+    /// Normalizes a sleep sample date to a night bucket (18:00 → next day considered same night).
+    private func nightAnchor(for date: Date, calendar: Calendar) -> Date {
+        let hour = calendar.component(.hour, from: date)
+        if hour < 18 {
+            return calendar.startOfDay(for: date)
+        }
+        let nextDay = calendar.date(byAdding: .day, value: 1, to: date) ?? date
+        return calendar.startOfDay(for: nextDay)
     }
 }

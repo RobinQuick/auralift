@@ -132,11 +132,14 @@ class RecoveryViewModel: ObservableObject {
 
         // 6. Evaluate deload
         let velocities = bioAdaptiveService.fetchRecentSessionVelocities(context: context)
+        let recentSleepHours = healthKitManager.isAvailable
+            ? await healthKitManager.fetchRecentSleepHistory(days: 7)
+            : []
         deloadRecommendation = bioAdaptiveService.evaluateDeload(
             snapshot: snapshot,
             hrvBaseline: hrvBaseline,
             recentSessionVelocities: velocities,
-            recentSleepHours: [] // TODO: Historical sleep from HealthKit
+            recentSleepHours: recentSleepHours
         )
 
         // 7. Save snapshot to CoreData
