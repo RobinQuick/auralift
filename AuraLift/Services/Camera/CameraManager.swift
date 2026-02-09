@@ -135,8 +135,8 @@ final class CameraManager: NSObject, ObservableObject, ServiceProtocol {
         sessionQueue.async { [weak self] in
             guard let self, !self.captureSession.isRunning else { return }
             self.captureSession.startRunning()
-            DispatchQueue.main.async {
-                self.isRunning = true
+            DispatchQueue.main.async { [weak self] in
+                self?.isRunning = true
             }
         }
     }
@@ -145,8 +145,8 @@ final class CameraManager: NSObject, ObservableObject, ServiceProtocol {
         sessionQueue.async { [weak self] in
             guard let self, self.captureSession.isRunning else { return }
             self.captureSession.stopRunning()
-            DispatchQueue.main.async {
-                self.isRunning = false
+            DispatchQueue.main.async { [weak self] in
+                self?.isRunning = false
             }
         }
     }
@@ -188,8 +188,8 @@ final class CameraManager: NSObject, ObservableObject, ServiceProtocol {
                         }
                     }
 
-                    DispatchQueue.main.async {
-                        self.currentCameraPosition = newPosition
+                    DispatchQueue.main.async { [weak self] in
+                        self?.currentCameraPosition = newPosition
                     }
                 }
             } catch {

@@ -20,6 +20,7 @@ struct CameraPreviewView: UIViewRepresentable {
     class CameraPreviewUIView: UIView {
         override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
 
+        // Safe force cast: layerClass override above guarantees layer is AVCaptureVideoPreviewLayer
         var previewLayer: AVCaptureVideoPreviewLayer {
             layer as! AVCaptureVideoPreviewLayer
         }

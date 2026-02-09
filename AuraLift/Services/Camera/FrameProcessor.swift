@@ -82,8 +82,8 @@ final class FrameProcessor: ObservableObject, ServiceProtocol {
 
             self.isCurrentlyProcessing = false
 
-            DispatchQueue.main.async {
-                self.poseAnalysisManager.isProcessing = false
+            DispatchQueue.main.async { [weak self] in
+                self?.poseAnalysisManager.isProcessing = false
             }
         }
     }
