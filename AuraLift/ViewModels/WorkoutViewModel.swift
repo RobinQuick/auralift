@@ -2,6 +2,7 @@ import Foundation
 import CoreData
 import SwiftUI
 import Combine
+import os
 
 // MARK: - SetSummary
 
@@ -29,6 +30,8 @@ struct SetSummary: Identifiable {
 
 @MainActor
 class WorkoutViewModel: ObservableObject {
+
+    private static let logger = Logger(subsystem: "com.aurea.app", category: "WorkoutViewModel")
 
     // MARK: - Session State
 
@@ -370,13 +373,21 @@ class WorkoutViewModel: ObservableObject {
         }
 
         // Initialize audio pipeline (non-fatal if audio setup fails)
-        try? await audioManager.initialize()
-        try? await hapticManager.initialize()
-        try? await announcerService.initialize()
-        try? await bpmSyncEngine.initialize()
+        do { try await audioManager.initialize() }
+        catch { Self.logger.warning("AudioManager init failed: \(error.localizedDescription)") }
+
+        do { try await hapticManager.initialize() }
+        catch { Self.logger.warning("HapticManager init failed: \(error.localizedDescription)") }
+
+        do { try await announcerService.initialize() }
+        catch { Self.logger.warning("AnnouncerService init failed: \(error.localizedDescription)") }
+
+        do { try await bpmSyncEngine.initialize() }
+        catch { Self.logger.warning("BPMSyncEngine init failed: \(error.localizedDescription)") }
 
         // Initialize ghost mode pipeline
-        try? await ghostModeManager.initialize()
+        do { try await ghostModeManager.initialize() }
+        catch { Self.logger.warning("GhostModeManager init failed: \(error.localizedDescription)") }
 
         // Sync haptic enable state from AudioManager settings
         hapticManager.isEnabled = audioManager.hapticsEnabled

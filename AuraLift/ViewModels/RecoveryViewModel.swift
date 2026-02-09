@@ -1,9 +1,12 @@
 import Foundation
 import CoreData
 import SwiftUI
+import os
 
 @MainActor
 class RecoveryViewModel: ObservableObject {
+
+    private static let logger = Logger(subsystem: "com.aurea.app", category: "RecoveryViewModel")
 
     // MARK: - Published State
 
@@ -84,7 +87,8 @@ class RecoveryViewModel: ObservableObject {
         // 1. Fetch HealthKit snapshot
         let snapshot: HealthSnapshot
         if healthKitManager.isAvailable {
-            try? await healthKitManager.initialize()
+            do { try await healthKitManager.initialize() }
+            catch { Self.logger.warning("HealthKit init failed: \(error.localizedDescription)") }
             snapshot = await healthKitManager.fetchLatestSnapshot()
         } else {
             snapshot = HealthSnapshot(hrv: hrvValue, sleepHours: sleepHours, restingHR: restingHeartRate, activeEnergy: activeEnergy)
@@ -103,7 +107,8 @@ class RecoveryViewModel: ObservableObject {
 
         // 3. Fetch cycle phase
         if cycleSyncService.isAvailable {
-            try? await cycleSyncService.initialize()
+            do { try await cycleSyncService.initialize() }
+            catch { Self.logger.warning("CycleSync init failed: \(error.localizedDescription)") }
             cyclePhase = await cycleSyncService.fetchCurrentPhase()
         }
 

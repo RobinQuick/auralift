@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import os
 
 // MARK: - LPParticle
 
@@ -18,10 +19,13 @@ struct LPParticle: Identifiable {
 /// publishes state for the overlay. Also manages LP floating particles.
 final class GhostModeManager: ObservableObject, ServiceProtocol {
 
+    private static let logger = Logger(subsystem: "com.aurea.app", category: "GhostModeManager")
+
     var isAvailable: Bool { true }
 
     func initialize() async throws {
-        try? await avatar.initialize()
+        do { try await avatar.initialize() }
+        catch { Self.logger.warning("PerfectFormAvatar init failed: \(error.localizedDescription)") }
     }
 
     // MARK: - Published State

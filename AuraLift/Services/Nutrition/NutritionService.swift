@@ -1,6 +1,7 @@
 import Foundation
 import CoreData
 import HealthKit
+import os
 
 // MARK: - Nutrition Goal
 
@@ -100,6 +101,8 @@ struct BodyComposition {
 /// Dynamically calculates macronutrient targets based on training load, body composition,
 /// and current goals. Implements carb cycling and recovery-aware adjustments.
 final class NutritionService: ServiceProtocol {
+
+    private static let logger = Logger(subsystem: "com.aurea.app", category: "NutritionService")
 
     var isAvailable: Bool { true }
 
@@ -268,7 +271,8 @@ final class NutritionService: ServiceProtocol {
         guard HKHealthStore.isHealthDataAvailable(),
               let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else { return nil }
 
-        try? await healthStore.requestAuthorization(toShare: [], read: [weightType])
+        do { try await healthStore.requestAuthorization(toShare: [], read: [weightType]) }
+        catch { Self.logger.warning("HealthKit weight auth failed: \(error.localizedDescription)") }
 
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
 
@@ -292,7 +296,8 @@ final class NutritionService: ServiceProtocol {
         guard HKHealthStore.isHealthDataAvailable(),
               let bfType = HKQuantityType.quantityType(forIdentifier: .bodyFatPercentage) else { return nil }
 
-        try? await healthStore.requestAuthorization(toShare: [], read: [bfType])
+        do { try await healthStore.requestAuthorization(toShare: [], read: [bfType]) }
+        catch { Self.logger.warning("HealthKit bodyFat auth failed: \(error.localizedDescription)") }
 
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
 
