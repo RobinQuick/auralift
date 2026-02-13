@@ -60,6 +60,8 @@ struct PremiumBadge: View {
         .background(
             Capsule().fill(Color.neonGold)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Premium feature")
     }
 }
 

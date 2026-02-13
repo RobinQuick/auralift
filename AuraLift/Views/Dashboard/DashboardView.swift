@@ -76,6 +76,8 @@ struct DashboardView: View {
             .darkCard()
             .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
         }
+        .accessibilityLabel("Season Pass, Alpha Protocol, Saison 0")
+        .accessibilityHint("Opens the season pass details")
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
@@ -132,6 +134,8 @@ struct DashboardView: View {
             .darkCard()
             .neonGlow(color: streakFlameColor, radius: AuraTheme.Shadows.subtleGlowRadius)
         }
+        .accessibilityLabel("Cyber Streak, \(streakManager.currentStreak) days, \(streakManager.streakTier.label)\(streakManager.xpMultiplier > 1.0 ? ", x\(String(format: "%.1f", streakManager.xpMultiplier)) XP multiplier" : "")\(streakManager.isAtRisk ? ", at risk" : "")")
+        .accessibilityHint("Opens the streak details")
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
@@ -181,6 +185,7 @@ struct DashboardView: View {
                             .frame(width: 8, height: 8)
                     }
                 }
+                .accessibilityHidden(true)
 
                 Image(systemName: "chevron.right")
                     .font(AuraTheme.Fonts.caption())
@@ -189,6 +194,8 @@ struct DashboardView: View {
             .darkCard()
             .neonGlow(color: .cyberOrange, radius: AuraTheme.Shadows.subtleGlowRadius)
         }
+        .accessibilityLabel("Cyber Ops, \(questManager.completedQuestCount) of 3 daily missions completed, \(questManager.totalQuestXP) XP")
+        .accessibilityHint("Opens the daily missions")
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
@@ -236,6 +243,8 @@ struct DashboardView: View {
                     .darkCard()
                     .neonGlow(color: .neonBlue, radius: AuraTheme.Shadows.subtleGlowRadius)
                 }
+                .accessibilityLabel("Aurea Blueprint, Week \(program.weekNumber) of 12, \(program.todayLabel)")
+                .accessibilityHint("Opens your training program")
             } else {
                 // No program: show CTA
                 NavigationLink {
@@ -270,6 +279,8 @@ struct DashboardView: View {
                     .darkCard()
                     .neonGlow(color: .neonGreen, radius: AuraTheme.Shadows.subtleGlowRadius)
                 }
+                .accessibilityLabel("Create Aurea Blueprint, 12-week personalized program")
+                .accessibilityHint("Opens the program setup wizard")
             }
         }
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -355,6 +366,7 @@ struct DashboardView: View {
                         .frame(width: 32, height: 32)
                         .rotationEffect(.degrees(-90))
                 }
+                .accessibilityHidden(true)
 
                 Image(systemName: "chevron.right")
                     .font(AuraTheme.Fonts.caption())
@@ -363,6 +375,8 @@ struct DashboardView: View {
             .aureaCard()
             .aureaGlow(color: .aureaPrimary, radius: AuraTheme.Shadows.subtleGlowRadius)
         }
+        .accessibilityLabel("Aurea League, \(league.currentTier.displayName), \(league.prestigePoints) points, \(Int(league.progressToNextTier * 100)) percent progress\(league.pointsToNextTier > 0 ? ", \(league.pointsToNextTier) points to \(league.currentTier.next?.displayName ?? "next tier")" : ", maximum prestige achieved")")
+        .accessibilityHint("Opens the prestige league")
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
 
@@ -384,6 +398,8 @@ struct DashboardView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, AuraTheme.Spacing.md)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("AUREA. \(Aurea.tagline)")
     }
 
     // MARK: - Quick Stats
@@ -448,6 +464,8 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity)
         .darkCard()
         .neonGlow(color: accent, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title), \(value)")
     }
 }
 

@@ -57,6 +57,7 @@ struct GymProfileEditorView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .foregroundColor(.neonBlue)
+                        .accessibilityLabel("Cancel gym editor")
                 }
             }
         }
@@ -130,6 +131,8 @@ struct GymProfileEditorView: View {
                     .stroke(isSelected ? Color.neonBlue.opacity(0.4) : Color.clear, lineWidth: 1)
             )
         }
+        .accessibilityLabel("\(name) equipment")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
     }
 
     // MARK: - Brand Section
@@ -176,6 +179,8 @@ struct GymProfileEditorView: View {
                         .stroke(isSelected ? Color.neonPurple.opacity(0.4) : Color.clear, lineWidth: 1)
                 )
         }
+        .accessibilityLabel("\(brand) brand")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
     }
 
     // MARK: - Save

@@ -55,6 +55,8 @@ struct ShareCardView: View {
                 .stroke(data.tier.color.opacity(0.6), lineWidth: 2)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Share card for \(data.username). \(data.tier.displayName) tier. Volume \(String(format: "%.0f", data.totalVolume)) kilograms, \(data.setsCount) sets, form score \(Int(data.averageFormScore)) percent, peak velocity \(String(format: "%.2f", data.peakVelocity)) meters per second. \(data.lpEarned) league points earned\(data.goldenRatioScore.map { String(format: ", golden ratio %.0f percent", $0) } ?? "")")
     }
 
     // MARK: - Header

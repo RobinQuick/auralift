@@ -34,6 +34,7 @@ struct SocialDashboardView: View {
                 Text("Share").tag(2)
             }
             .pickerStyle(.segmented)
+            .accessibilityLabel("Social section picker")
             .padding(.horizontal, AuraTheme.Spacing.lg)
             .padding(.vertical, AuraTheme.Spacing.md)
 
@@ -119,6 +120,8 @@ struct SocialDashboardView: View {
                 .font(AuraTheme.Fonts.caption())
                 .foregroundColor(.auraTextSecondary)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Guild \(summary.name), tag \(summary.tag)")
         .frame(maxWidth: .infinity)
         .darkCard()
         .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
@@ -149,6 +152,8 @@ struct SocialDashboardView: View {
                     .foregroundColor(.auraTextSecondary)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("War record: \(summary.warRecord.wins) wins, \(summary.warRecord.losses) losses")
         .frame(maxWidth: .infinity)
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -182,6 +187,7 @@ struct SocialDashboardView: View {
                         .fill(summary.role.color.opacity(0.15))
                 )
         }
+        .accessibilityElement(children: .combine)
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
@@ -227,6 +233,7 @@ struct SocialDashboardView: View {
                     .cornerRadius(AuraTheme.Radius.medium)
                     .padding(.horizontal, AuraTheme.Spacing.lg)
                     .shadow(color: .neonBlue.opacity(0.3), radius: 12)
+                    .accessibilityLabel("Session share card preview")
 
                 NeonButton(title: "SHARE", icon: "square.and.arrow.up", color: .neonBlue) {
                     viewModel.showShareSheet = true

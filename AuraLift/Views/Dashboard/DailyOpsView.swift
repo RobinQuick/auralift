@@ -52,7 +52,10 @@ struct DailyOpsView: View {
                 }
             }
             .padding(.top, AuraTheme.Spacing.xs)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(questManager.completedQuestCount) of 3 missions completed")
         }
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Quests List
@@ -120,12 +123,15 @@ struct DailyOpsView: View {
                 }
             }
             .frame(height: 6)
+            .accessibilityHidden(true)
         }
         .darkCard()
         .overlay(
             RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
                 .stroke(quest.isCompleted ? Color.neonGreen.opacity(0.4) : Color.clear, lineWidth: 0.5)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(quest.title), \(quest.description), \(quest.isCompleted ? "completed" : "\(Int(quest.progressPercent * 100)) percent progress"), +\(quest.xpReward) XP")
     }
 
     // MARK: - XP Summary
@@ -160,6 +166,8 @@ struct DailyOpsView: View {
         }
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Daily missions XP, \(questManager.quests.filter(\.isCompleted).reduce(Int64(0), { $0 + $1.xpReward })) of \(questManager.totalQuestXP) XP earned\(questManager.allCompleted ? ", all completed" : "")")
     }
 }
 

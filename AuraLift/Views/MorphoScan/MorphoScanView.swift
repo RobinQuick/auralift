@@ -188,6 +188,7 @@ struct MorphoScanView: View {
             .font(.system(size: 200))
             .foregroundColor(.neonBlue.opacity(confidenceOpacity))
             .shadow(color: .neonBlue.opacity(confidenceOpacity * 0.5), radius: 12)
+            .accessibilityLabel("T-pose alignment guide")
     }
 
     private var confidenceOpacity: Double {
@@ -222,6 +223,8 @@ struct MorphoScanView: View {
         .padding(AuraTheme.Spacing.sm)
         .background(Color.auraBlack.opacity(0.6))
         .cornerRadius(AuraTheme.Radius.medium)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("T-pose confidence: \(Int(viewModel.tposeConfidence * 100)) percent")
     }
 
     private var confidenceColor: Color {
@@ -330,6 +333,8 @@ struct MorphoScanView: View {
         }
         .padding(.horizontal, AuraTheme.Spacing.xxl)
         .padding(.bottom, 120) // Above control bar
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Capture progress: \(Int(progress * 100)) percent")
     }
 
     // MARK: - Processing View

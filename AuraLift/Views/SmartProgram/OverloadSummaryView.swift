@@ -75,6 +75,8 @@ struct OverloadSummaryView: View {
         }
         .frame(maxWidth: .infinity)
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 
     // MARK: - Decision Row
@@ -116,6 +118,8 @@ struct OverloadSummaryView: View {
         }
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(decision.exerciseName): \(decision.isIncrease ? "Increase" : decision.isDecrease ? "Decrease" : "Maintain") to \(String(format: "%.1f", decision.newWeight)) kg\(decision.weightChange != 0 ? ", change \(String(format: "%+.1f", decision.weightChange)) kg" : ""). \(decision.whyMessage)")
     }
 
     // MARK: - Helpers

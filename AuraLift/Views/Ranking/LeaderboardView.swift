@@ -103,6 +103,7 @@ struct LeaderboardView: View {
                 .font(AuraTheme.Fonts.mono())
                 .foregroundColor(entry.tier.color)
         }
+        .accessibilityElement(children: .combine)
         .darkCard()
         .if(entry.isCurrentSession) { view in
             view.neonGlow(color: entry.tier.color, radius: AuraTheme.Shadows.glowRadius)

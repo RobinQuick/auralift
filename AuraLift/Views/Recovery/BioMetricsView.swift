@@ -83,6 +83,8 @@ struct BioMetricsView: View {
         }
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Readiness breakdown: HRV \(Int(viewModel.hrvScore)), Sleep \(Int(viewModel.sleepScore)), Heart rate \(Int(viewModel.restingHRScore)), Muscle \(Int(viewModel.muscleRecoveryAverage))")
     }
 
     private func scoreRing(label: String, score: Double, color: Color) -> some View {
@@ -109,6 +111,8 @@ struct BioMetricsView: View {
                 .foregroundColor(.auraTextSecondary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label) score: \(Int(score)) out of 100")
     }
 
     // MARK: - Metric Card
@@ -161,6 +165,8 @@ struct BioMetricsView: View {
         .frame(maxWidth: .infinity)
         .darkCard()
         .neonGlow(color: accent, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value) \(unit)\(score != nil ? ", score \(Int(score!)) out of 100" : "")")
     }
 
     // MARK: - Cycle Phase Card
@@ -218,6 +224,8 @@ struct BioMetricsView: View {
         }
         .darkCard()
         .neonGlow(color: .neonPurple, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Cycle sync: \(phase.displayName) phase, intensity \(Int(phase.intensityModifier * 100)) percent, volume \(Int(phase.volumeModifier * 100)) percent")
     }
 
     // MARK: - HRV Baseline
@@ -269,6 +277,8 @@ struct BioMetricsView: View {
             }
         }
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("HRV trend: current \(Int(viewModel.hrvValue)) milliseconds, 14-day average \(Int(viewModel.hrvBaseline)) milliseconds")
     }
 
     // MARK: - Helpers

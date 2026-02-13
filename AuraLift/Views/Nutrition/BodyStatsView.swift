@@ -62,6 +62,8 @@ struct BodyStatsView: View {
                 .font(AuraTheme.Fonts.subheading())
                 .foregroundColor(.neonGold)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Golden Ratio score: \(Int(result.overallScore)) out of 100")
     }
 
     // MARK: - Radar Chart
@@ -106,6 +108,8 @@ struct BodyStatsView: View {
         .frame(width: 220, height: 220)
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Radar chart showing body proportion ratios compared to the ideal")
     }
 
     private func radarPolygon(values: [Double]) -> some Shape {
@@ -159,6 +163,8 @@ struct BodyStatsView: View {
                         .foregroundColor(statusColor(dev.status))
                 }
                 .darkCard()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(dev.ratioName): actual \(String(format: "%.2f", dev.actualValue)), ideal \(String(format: "%.2f", dev.idealValue)), status \(dev.status.rawValue)")
             }
         }
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -191,6 +197,8 @@ struct BodyStatsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Priority muscles: \(result.priorityMuscleGroups.joined(separator: ", "))")
     }
 
     // MARK: - Action Card
@@ -214,6 +222,8 @@ struct BodyStatsView: View {
         .darkCard()
         .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Action recommendation: \(summary)")
     }
 
     // MARK: - Body Composition
@@ -251,6 +261,8 @@ struct BodyStatsView: View {
         }
         .frame(maxWidth: .infinity)
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value) \(unit)")
     }
 
     // MARK: - Empty State

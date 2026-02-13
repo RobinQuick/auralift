@@ -40,6 +40,7 @@ struct AudioSettingsView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundColor(.neonBlue)
+                        .accessibilityLabel("Done")
                 }
             }
             .onAppear { loadSettings() }
@@ -102,6 +103,9 @@ struct AudioSettingsView: View {
                     .stroke(isSelected ? Color.aureaPrimary.opacity(0.6) : Color.clear, lineWidth: 1)
             )
         }
+        .accessibilityLabel("\(persona.displayName) persona, \(persona.description)")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityHint("Double tap to select this persona")
         .contextMenu {
             Button {
                 previewPersona(persona)
@@ -143,6 +147,8 @@ struct AudioSettingsView: View {
 
             Slider(value: value, in: 0...1, step: 0.05)
                 .accentColor(color)
+                .accessibilityLabel("\(label) volume")
+                .accessibilityValue("\(Int(value.wrappedValue * 100)) percent")
                 .onChange(of: value.wrappedValue) { _ in saveSettings() }
         }
         .darkCard()
@@ -200,6 +206,7 @@ struct AudioSettingsView: View {
                         .stroke(Color.aureaPrimary.opacity(0.3), lineWidth: 0.5)
                 )
             }
+            .accessibilityLabel("Preview persona voice")
             .padding(.horizontal, AuraTheme.Spacing.lg)
         }
     }
@@ -227,6 +234,8 @@ struct AudioSettingsView: View {
             Toggle("", isOn: isOn)
                 .labelsHidden()
                 .tint(color)
+                .accessibilityLabel(label)
+                .accessibilityValue(isOn.wrappedValue ? "Enabled" : "Disabled")
                 .onChange(of: isOn.wrappedValue) { _ in saveSettings() }
         }
         .darkCard()

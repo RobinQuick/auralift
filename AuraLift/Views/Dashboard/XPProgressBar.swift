@@ -66,6 +66,8 @@ struct XPProgressBar: View {
             RoundedRectangle(cornerRadius: AuraTheme.Radius.medium)
                 .stroke(Color.neonBlue.opacity(0.3), lineWidth: 0.5)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("XP progress, \(tier) tier, \(currentXP) of \(requiredXP) XP, \(Int(progress * 100)) percent")
     }
 }
 

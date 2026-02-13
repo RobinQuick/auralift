@@ -91,6 +91,8 @@ struct AureaLeagueView: View {
                     )
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(league.currentTier.displayName) tier\(league.isBlackCard ? ", Black Card holder" : "")")
     }
 
     // MARK: - Progress Section
@@ -121,6 +123,8 @@ struct AureaLeagueView: View {
                         .foregroundColor(.aureaTextSecondary)
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(league.prestigePoints) prestige points, \(Int(progress * 100)) percent progress to next tier")
 
             if league.pointsToNextTier > 0 {
                 Text("\(league.pointsToNextTier) points to \(league.currentTier.next?.displayName ?? "")")
@@ -164,6 +168,7 @@ struct AureaLeagueView: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
         .aureaCard()
     }
 
@@ -196,6 +201,8 @@ struct AureaLeagueView: View {
                             .font(AureaTheme.Fonts.mono())
                             .foregroundColor(.aureaPrimary)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Next tier: \(next.displayName), \(league.pointsToNextTier) points remaining out of \(next.pointsRequired) required")
                     .aureaCard()
                     .padding(.horizontal, AureaTheme.Spacing.lg)
                 }
@@ -224,6 +231,8 @@ struct AureaLeagueView: View {
                     .foregroundColor(.aureaTextSecondary)
                     .multilineTextAlignment(.center)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Black Card, Architect tier. The pinnacle of AUREA with exclusive access to all future features, priority support, and permanent Black Card status")
             .padding(AureaTheme.Spacing.xl)
             .background(Color.aureaVoid)
             .cornerRadius(AureaTheme.Radius.large)

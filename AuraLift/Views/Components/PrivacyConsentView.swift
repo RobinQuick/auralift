@@ -78,6 +78,8 @@ struct PrivacyConsentView: View {
             Capsule()
                 .stroke(Color.neonGreen.opacity(0.4), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("On-device analysis")
     }
 
     // MARK: - Info Cards
@@ -148,6 +150,8 @@ struct PrivacyConsentView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(items.joined(separator: ". "))")
     }
 
     // MARK: - Buttons

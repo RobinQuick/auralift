@@ -147,6 +147,8 @@ struct ProfileView: View {
                 Capsule()
                     .fill(Color.neonGold.opacity(0.15))
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Rank: \(tier) \(division)")
 
             Text("Member since \(memberSince)")
                 .font(AuraTheme.Fonts.caption())
@@ -176,6 +178,8 @@ struct ProfileView: View {
         }
         .frame(maxWidth: .infinity)
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 
     // MARK: - Settings
@@ -191,10 +195,14 @@ struct ProfileView: View {
                         Button { showAudioSettings = true } label: {
                             settingsRow(item)
                         }
+                        .accessibilityLabel("Persona & Voice")
+                        .accessibilityHint("Opens persona and voice settings")
                     } else if item.label == "Privacy" {
                         Button { showPrivacyInfo = true } label: {
                             settingsRow(item)
                         }
+                        .accessibilityLabel("Privacy")
+                        .accessibilityHint("Opens privacy information")
                     } else if item.label == "About AUREA" {
                         Button {
                             betaTapCount += 1
@@ -226,8 +234,11 @@ struct ProfileView: View {
                             }
                             .darkCard()
                         }
+                        .accessibilityLabel("About AUREA, Version 0.1.0")
+                        .accessibilityHint("Opens app information")
                     } else {
                         settingsRow(item)
+                            .accessibilityElement(children: .combine)
                     }
                 }
             }
@@ -284,6 +295,7 @@ struct ProfileView: View {
             )
         }
         .disabled(isDeleting)
+        .accessibilityLabel("Delete my account and data")
         .padding(.horizontal, AuraTheme.Spacing.lg)
         .padding(.top, AuraTheme.Spacing.md)
     }

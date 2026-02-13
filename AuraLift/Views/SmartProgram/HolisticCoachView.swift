@@ -105,6 +105,7 @@ struct HolisticCoachView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Today's Session
@@ -162,6 +163,8 @@ struct HolisticCoachView: View {
             }
         }
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Rest day. Recovery is part of the program. Focus on sleep and nutrition.")
     }
 
     private var emptyDayCard: some View {
@@ -210,6 +213,8 @@ struct HolisticCoachView: View {
                 .stroke(bannerColor.opacity(0.3), lineWidth: 1)
         )
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(bannerTitle): \(adaptation.whyMessage)")
     }
 
     // MARK: - Nutrition Card (ON/OFF System)
@@ -238,6 +243,8 @@ struct HolisticCoachView: View {
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
                         .foregroundColor(.auraTextSecondary)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Calorie target: \(Int(macros.calories)) kilocalories")
 
                 HStack(spacing: AuraTheme.Spacing.md) {
                     macroCircle(value: Int(macros.proteinGrams), label: "P (g)", color: .neonGreen)
@@ -266,6 +273,8 @@ struct HolisticCoachView: View {
                 .foregroundColor(.auraTextSecondary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 
     // MARK: - Supplement Checklist
@@ -308,6 +317,8 @@ struct HolisticCoachView: View {
                         Spacer()
                     }
                 }
+                .accessibilityLabel("\(item.name), \(item.dosage), \(item.timing)")
+                .accessibilityValue(item.isChecked ? "Taken" : "Not taken")
             }
         }
         .darkCard()
@@ -337,6 +348,8 @@ struct HolisticCoachView: View {
         .darkCard()
         .neonGlow(color: .neonGreen, radius: AuraTheme.Shadows.subtleGlowRadius)
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Prediction: \(viewModel.waistPrediction)")
     }
 
     // MARK: - Helpers

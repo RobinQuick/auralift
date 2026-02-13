@@ -106,6 +106,7 @@ targets:
         group: Views/Workout
       - path: AuraLift/Resources/Assets.xcassets
         type: folder
+      - path: AuraLift/Resources/PrivacyInfo.xcprivacy
       - path: AuraLift/fr.lproj
         type: folder
     settings:
@@ -116,7 +117,9 @@ targets:
     info:
       path: AuraLift/Info.plist
       properties:
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchLogo
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIRequiresFullScreen: true

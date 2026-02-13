@@ -27,6 +27,8 @@ struct AureaButton: View {
             .shadow(color: color.opacity(0.6), radius: AureaTheme.Shadows.glowRadius, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -58,6 +60,8 @@ struct AureaOutlineButton: View {
             .shadow(color: color.opacity(0.3), radius: AureaTheme.Shadows.subtleGlowRadius, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
     }
 }
 

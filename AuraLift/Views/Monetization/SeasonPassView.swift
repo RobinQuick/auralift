@@ -54,6 +54,8 @@ struct SeasonPassView: View {
                         .font(AuraTheme.Fonts.subheading())
                         .foregroundColor(.auraTextPrimary)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Level \(viewModel.currentLevel)")
 
                 HStack(spacing: AuraTheme.Spacing.xs) {
                     Image(systemName: "clock")
@@ -63,6 +65,8 @@ struct SeasonPassView: View {
                         .font(AuraTheme.Fonts.caption())
                         .foregroundColor(.auraTextSecondary)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(viewModel.daysRemaining) days remaining")
             }
         }
     }
@@ -103,6 +107,8 @@ struct SeasonPassView: View {
             .frame(height: 8)
         }
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("XP progress: \(viewModel.totalXP) XP total, \(viewModel.progressCurrent) of \(viewModel.progressRequired) to next level")
     }
 
     // MARK: - Reward Track
@@ -157,6 +163,7 @@ struct SeasonPassView: View {
                     .foregroundColor(isReached ? .auraBlack : .auraTextDisabled)
             }
             .frame(width: 50)
+            .accessibilityLabel("Level \(level.level)\(isReached ? ", reached" : ", not reached")")
 
             // Free reward
             rewardCard(
@@ -220,6 +227,7 @@ struct SeasonPassView: View {
                                 .padding(.vertical, 3)
                                 .background(Capsule().fill(accentColor))
                         }
+                        .accessibilityLabel("Claim \(reward.displayName)")
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -230,6 +238,8 @@ struct SeasonPassView: View {
                     RoundedRectangle(cornerRadius: AuraTheme.Radius.small)
                         .stroke(claimed ? accentColor.opacity(0.4) : Color.clear, lineWidth: 0.5)
                 )
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("\(reward.displayName)\(claimed ? ", claimed" : locked ? ", locked, premium required" : canClaim ? ", available to claim" : ", not yet reached")")
                 .onTapGesture {
                     if locked {
                         showPaywall = true

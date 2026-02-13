@@ -35,6 +35,7 @@ struct PaywallView: View {
                     .foregroundColor(.auraTextSecondary)
                     .padding(AuraTheme.Spacing.lg)
             }
+            .accessibilityLabel("Close paywall")
         }
         .task {
             await PremiumManager.shared.loadProducts()
@@ -97,6 +98,8 @@ struct PaywallView: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(text)
     }
 
     // MARK: - Product Cards
@@ -188,6 +191,8 @@ struct PaywallView: View {
             )
             .shadow(color: selected ? accentColor.opacity(0.3) : .clear, radius: 8)
         }
+        .accessibilityLabel("\(product.displayName), \(viewModel.priceString(for: product)) \(viewModel.periodLabel(for: product)). \(subtitle)")
+        .accessibilityValue(selected ? "Selected" : "Not selected")
     }
 
     // MARK: - Purchase Button
@@ -248,6 +253,7 @@ struct PaywallView: View {
                 .foregroundColor(.neonBlue)
                 .underline()
         }
+        .accessibilityLabel("Restore previous purchase")
         .disabled(viewModel.isPurchasing)
     }
 }

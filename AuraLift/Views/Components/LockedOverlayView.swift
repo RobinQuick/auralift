@@ -31,6 +31,10 @@ struct LockedOverlayView: View {
         .onTapGesture {
             showPaywall = true
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Locked premium feature")
+        .accessibilityHint("Double tap to view upgrade options")
+        .accessibilityAddTraits(.isButton)
     }
 }
 

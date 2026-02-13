@@ -94,6 +94,8 @@ struct RankingView: View {
             }
             .darkCard()
         }
+        .accessibilityLabel("Social Hub")
+        .accessibilityHint("Opens guild, leaderboard, and share features")
         .buttonStyle(.plain)
         .padding(.horizontal, AuraTheme.Spacing.lg)
     }
@@ -133,6 +135,8 @@ struct RankingView: View {
                 .font(AuraTheme.Fonts.caption())
                 .foregroundColor(.auraTextSecondary)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(tier.displayName) rank, \(viewModel.currentLP) league points, \(viewModel.totalWorkouts) workouts completed")
     }
 
     // MARK: - Promotion Series
@@ -182,6 +186,8 @@ struct RankingView: View {
                     .foregroundColor(.cyberOrange)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Promotion series, \(viewModel.promotionSeriesWins) of 3 wins\(tier.nextTier.map { ", advancing to \($0.displayName)" } ?? "")")
         .darkCard()
         .neonGlow(color: .cyberOrange, radius: AuraTheme.Shadows.subtleGlowRadius)
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -224,6 +230,7 @@ struct RankingView: View {
                 }
             }
             .frame(height: 10)
+            .accessibilityLabel("League points progress, \(Int(viewModel.lpProgress * 100)) percent")
 
             if viewModel.lpToNextTier > 0 {
                 Text("\(viewModel.lpInTier) / \(viewModel.lpToNextTier) LP")
@@ -285,6 +292,7 @@ struct RankingView: View {
                 .font(AuraTheme.Fonts.mono())
                 .foregroundColor(tierColor)
         }
+        .accessibilityElement(children: .combine)
         .darkCard()
     }
 
@@ -328,6 +336,7 @@ struct RankingView: View {
                     .foregroundColor(.auraTextSecondary)
             }
         }
+        .accessibilityElement(children: .combine)
         .darkCard()
     }
 }

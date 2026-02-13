@@ -49,6 +49,8 @@ struct WeekDayStripView: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(dayLabels[index])\(isToday ? ", today" : "")\(day?.isRestDay == true ? ", rest day" : "")\(day?.isCompleted == true ? ", completed" : "")")
     }
 
     // MARK: - Dot Color

@@ -55,6 +55,8 @@ struct ProgramExerciseRow: View {
                         .background(Color.cyberOrange.opacity(0.15))
                         .cornerRadius(AuraTheme.Radius.small)
                 }
+                .accessibilityLabel("Swap \(programExercise.exerciseName)")
+                .accessibilityHint("Choose an alternative exercise")
 
                 // Why chevron
                 Button {
@@ -66,6 +68,8 @@ struct ProgramExerciseRow: View {
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(.auraTextSecondary)
                 }
+                .accessibilityLabel(showWhy ? "Hide details" : "Show details")
+                .accessibilityHint("Why this exercise was chosen")
             }
 
             // Expandable "Why" section

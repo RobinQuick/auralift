@@ -60,6 +60,7 @@ struct ExercisePickerView: View {
                         } label: {
                             exerciseRow(exercise)
                         }
+                        .accessibilityLabel(exerciseAccessibilityLabel(exercise))
                     }
                 }
                 .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -79,12 +80,14 @@ struct ExercisePickerView: View {
             TextField("Search exercises...", text: $searchText)
                 .font(AuraTheme.Fonts.body())
                 .foregroundColor(.auraTextPrimary)
+                .accessibilityLabel("Search exercises")
 
             if !searchText.isEmpty {
                 Button { searchText = "" } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.auraTextSecondary)
                 }
+                .accessibilityLabel("Clear search")
             }
         }
         .padding(AuraTheme.Spacing.md)
@@ -130,6 +133,7 @@ struct ExercisePickerView: View {
                         .stroke(isSelected ? Color.clear : Color.auraBorder, lineWidth: 0.5)
                 )
         }
+        .accessibilityLabel("Filter \(label)\(isSelected ? ", selected" : "")")
     }
 
     // MARK: - Exercise Row
@@ -197,6 +201,23 @@ struct ExercisePickerView: View {
                     )
             }
         }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    private func exerciseAccessibilityLabel(_ exercise: Exercise) -> String {
+        var parts = [exercise.name]
+        let risk = ExerciseRisk(rawValue: exercise.riskLevel ?? "optimal") ?? .optimal
+        if risk != .optimal {
+            parts.append(risk.displayName)
+        }
+        if let category = exercise.category {
+            parts.append(category.capitalized)
+        }
+        if let primary = exercise.primaryMuscle {
+            parts.append(primary.replacingOccurrences(of: "_", with: " ").capitalized)
+        }
+        return parts.joined(separator: ", ")
     }
 }
 

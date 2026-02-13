@@ -71,6 +71,8 @@ struct CyberStreakView: View {
                 .padding(.vertical, 4)
                 .background(Capsule().fill(flameSwiftUIColor))
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(streakManager.currentStreak) consecutive days, \(streakManager.streakTier.label) tier")
     }
 
     // MARK: - Stats Row
@@ -95,6 +97,8 @@ struct CyberStreakView: View {
         }
         .frame(maxWidth: .infinity)
         .darkCard()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label), \(value)")
     }
 
     // MARK: - Multiplier Card
@@ -144,6 +148,8 @@ struct CyberStreakView: View {
         .padding(.horizontal, AuraTheme.Spacing.md)
         .background(isActive ? tierColor.opacity(0.08) : Color.clear)
         .cornerRadius(AuraTheme.Radius.small)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(days) days, \(mult) multiplier\(isActive ? ", current tier" : "")")
     }
 
     // MARK: - Streak Freeze
@@ -175,6 +181,7 @@ struct CyberStreakView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 22))
                         .foregroundColor(.neonGreen)
+                        .accessibilityLabel("Streak freeze activated")
                 } else if streakManager.freezeAvailable {
                     Button {
                         freezeApplied = streakManager.useStreakFreeze()
@@ -186,6 +193,7 @@ struct CyberStreakView: View {
                             .padding(.vertical, 4)
                             .background(Capsule().fill(Color.neonBlue))
                     }
+                    .accessibilityLabel("Activate streak freeze")
                 } else if !PremiumManager.shared.isPro {
                     Button {
                         showPaywall = true
@@ -194,10 +202,12 @@ struct CyberStreakView: View {
                             .font(.system(size: 18))
                             .foregroundColor(.neonGold)
                     }
+                    .accessibilityLabel("Unlock streak freeze with premium")
                 } else {
                     Text("UTILISÉ")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
                         .foregroundColor(.auraTextDisabled)
+                        .accessibilityLabel("Streak freeze already used this month")
                 }
             }
             .darkCard()
@@ -233,6 +243,8 @@ struct CyberStreakView: View {
                 .stroke(Color.cyberOrange.opacity(0.3), lineWidth: 0.5)
         )
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Warning: Your x\(String(format: "%.1f", streakManager.xpMultiplier)) multiplier will be lost. Train today to keep it.")
     }
 
     // MARK: - Helpers

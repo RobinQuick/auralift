@@ -87,6 +87,8 @@ struct ScanResultsView: View {
         }
         .darkCard()
         .neonGlow(color: .cyberOrange, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Morphotype: \(morphotype.rawValue). \(morphotype.description)")
     }
 
     // MARK: - Ratio Cards
@@ -160,6 +162,8 @@ struct ScanResultsView: View {
         }
         .darkCard()
         .neonGlow(color: .neonBlue, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(String(format: "%.2f", value)), average \(String(format: "%.2f", average)). \(interpretation)")
     }
 
     private func deviationBar(value: Double, average: Double) -> some View {
@@ -251,6 +255,8 @@ struct ScanResultsView: View {
         .padding(.vertical, AuraTheme.Spacing.sm)
         .background(Color.auraSurfaceElevated)
         .cornerRadius(AuraTheme.Radius.small)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(count) \(risk.displayName) exercises")
     }
 
     private func riskGroupCard(
@@ -290,6 +296,8 @@ struct ScanResultsView: View {
                             .lineLimit(1)
                     }
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(exercise.name)\(exercise.biomechanicalNotes != nil ? ", \(exercise.biomechanicalNotes!)" : "")")
             }
         }
         .darkCard()
@@ -309,6 +317,8 @@ struct ScanResultsView: View {
                 .multilineTextAlignment(.center)
         }
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Biomechanical profile: \(summary)")
     }
 
     // MARK: - Interpretations

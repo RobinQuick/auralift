@@ -53,6 +53,8 @@ struct AnimatedRankBadge: View {
             value: isGlowing
         )
         .onAppear { isGlowing = true }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Rank: \(tier.displayName)")
     }
 
     private var tierIcon: String {

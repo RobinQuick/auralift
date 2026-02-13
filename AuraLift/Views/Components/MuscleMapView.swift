@@ -56,6 +56,8 @@ struct MuscleMapView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("\(region.displayName), \(Int(score)) percent recovered")
+                    .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
                     .position(
                         x: geo.size.width * region.position.x,
                         y: geo.size.height * region.position.y

@@ -119,6 +119,8 @@ struct SetTrackerView: View {
         }
         .darkCard()
         .neonGlow(color: velocityColor(entry.averageVelocity), radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Set \(entry.setNumber), \(entry.reps) reps at \(String(format: "%.1f", entry.weightKg)) kg, velocity \(String(format: "%.2f", entry.averageVelocity)) meters per second, form \(Int(entry.averageFormScore)) percent, RPE \(String(format: "%.0f", entry.rpe))")
     }
 
     // MARK: - Velocity Trend
@@ -172,6 +174,8 @@ struct SetTrackerView: View {
             .frame(height: 90)
         }
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Velocity trend, \(String(format: "%.0f", trend * 100)) percent loss across \(completedSets.count) sets")
     }
 
     // MARK: - Velocity Badge

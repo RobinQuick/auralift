@@ -37,6 +37,7 @@ struct ProgramSetupWizardView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .foregroundColor(.neonBlue)
+                        .accessibilityLabel("Cancel program setup")
                 }
             }
             .sheet(isPresented: $showGymEditor) {
@@ -60,6 +61,8 @@ struct ProgramSetupWizardView: View {
                         .foregroundColor(step <= currentStep ? .neonBlue : .auraTextDisabled)
                 }
                 .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Step \(step + 1): \(stepLabel(step)), \(step <= currentStep ? "completed" : "upcoming")")
             }
         }
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -135,6 +138,8 @@ struct ProgramSetupWizardView: View {
                     .stroke(isSelected ? Color.neonBlue.opacity(0.5) : Color.clear, lineWidth: 1.5)
             )
         }
+        .accessibilityLabel("\(freq.displayName). \(freq.description)")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
     }
 
     // MARK: - Step 2: Goal
@@ -208,6 +213,8 @@ struct ProgramSetupWizardView: View {
                     .stroke(isSelected ? goal.accentColor.opacity(0.5) : Color.clear, lineWidth: 1.5)
             )
         }
+        .accessibilityLabel("\(goal.displayName). \(goal.description)")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
     }
 
     // MARK: - Step 3: Gym
@@ -245,6 +252,7 @@ struct ProgramSetupWizardView: View {
                             .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [6]))
                     )
                 }
+                .accessibilityLabel("Create new gym profile")
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)
             .padding(.top, AuraTheme.Spacing.xl)
@@ -281,6 +289,8 @@ struct ProgramSetupWizardView: View {
                     .stroke(isSelected ? Color.neonBlue.opacity(0.5) : Color.clear, lineWidth: 1.5)
             )
         }
+        .accessibilityLabel("\(profile.name), \(profile.equipmentList.count) equipment types, \(profile.brandList.count) brands")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
     }
 
     // MARK: - Step 4: Review
@@ -339,6 +349,8 @@ struct ProgramSetupWizardView: View {
                 .font(AuraTheme.Fonts.caption())
                 .foregroundColor(.auraTextPrimary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 
     // MARK: - Navigation Bar

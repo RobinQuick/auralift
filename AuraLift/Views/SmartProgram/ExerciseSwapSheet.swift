@@ -41,6 +41,7 @@ struct ExerciseSwapSheet: View {
                 }
                 .font(AuraTheme.Fonts.caption())
                 .foregroundColor(.auraTextSecondary)
+                .accessibilityLabel("Keep current exercise")
                 .padding(.bottom, AuraTheme.Spacing.xl)
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -103,6 +104,8 @@ struct ExerciseSwapSheet: View {
                     .stroke(Color.cyberOrange.opacity(0.3), lineWidth: 1)
             )
         }
+        .accessibilityLabel("Swap to \(suggestion.exercise.name), \(Int(suggestion.suggestedWeight)) kg, \(suggestion.suggestedReps), \(suggestion.morphoFit.displayName) fit")
+        .accessibilityHint("Double tap to select this exercise")
     }
 
     // MARK: - Morpho Fit Badge

@@ -58,6 +58,8 @@ struct StatCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)\(unit.isEmpty ? "" : " \(unit)")")
     }
 }
 

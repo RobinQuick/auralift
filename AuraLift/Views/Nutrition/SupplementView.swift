@@ -64,6 +64,8 @@ struct SupplementView: View {
         }
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Supplement stack: \(viewModel.supplements.filter { $0.priority == .essential }.count) essential, \(viewModel.supplements.filter { $0.priority == .recommended }.count) targeted, \(viewModel.supplements.filter { $0.priority == .optional }.count) optional")
     }
 
     private func summaryBadge(count: Int, label: String, color: Color) -> some View {
@@ -76,6 +78,8 @@ struct SupplementView: View {
                 .foregroundColor(.auraTextSecondary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(count) \(label) supplements")
     }
 
     // MARK: - Supplement Section
@@ -151,6 +155,8 @@ struct SupplementView: View {
         }
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(supplement.name), \(supplement.dosage), \(supplement.timing). \(supplement.reason). Evidence level \(supplement.evidenceLevel.displayBadge)")
     }
 
     // MARK: - Empty State

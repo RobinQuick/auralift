@@ -42,6 +42,7 @@ struct RecoveryHeatmapView: View {
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, AuraTheme.Spacing.lg)
+                .accessibilityLabel("Recovery view selector")
 
                 // MARK: - Content
                 if selectedSegment == 0 {
@@ -114,6 +115,8 @@ struct RecoveryHeatmapView: View {
         .cornerRadius(AuraTheme.Radius.medium)
         .padding(.horizontal, AuraTheme.Spacing.lg)
         .neonGlow(color: .neonRed, radius: AuraTheme.Shadows.subtleGlowRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Auto-deload recommended. Reduce load by \(Int(deload.suggestedLoadReduction * 100)) percent for \(deload.durationDays) days")
     }
 
     // MARK: - Readiness Ring
@@ -159,8 +162,12 @@ struct RecoveryHeatmapView: View {
                         .foregroundColor(.auraTextSecondary)
                 }
                 .darkCard()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Cycle phase: \(phase.displayName), days \(phase.dayRange)")
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Readiness score: \(Int(viewModel.overallReadiness)) out of 100")
     }
 
     // MARK: - Training Adjustment
@@ -196,6 +203,8 @@ struct RecoveryHeatmapView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Training adjustment: \(adjustment.recommendation)")
     }
 
     private func modifierBadge(label: String, value: Double, icon: String) -> some View {
@@ -268,6 +277,8 @@ struct RecoveryHeatmapView: View {
             }
         }
         .shadow(color: .neonGreen.opacity(0.15), radius: 12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Muscle map overview")
     }
 
     private var heatmapGradientColors: [Color] {
@@ -356,6 +367,9 @@ struct RecoveryHeatmapView: View {
                     .frame(width: 44, alignment: .trailing)
             }
             .darkCard()
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(status.muscleName), recovery \(Int(status.recoveryPercent)) percent")
+            .accessibilityHint("Double tap to expand")
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     viewModel.selectedMuscle = isSelected ? nil : status.muscleName

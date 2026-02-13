@@ -59,6 +59,9 @@ struct AureaTabBar: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(tab.rawValue)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityHint("Switch to \(tab.rawValue) tab")
     }
 }
 

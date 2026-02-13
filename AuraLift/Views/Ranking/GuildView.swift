@@ -87,6 +87,8 @@ struct GuildView: View {
                 .font(AuraTheme.Fonts.caption())
                 .foregroundColor(.auraTextSecondary)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Guild \(summary.name), tag \(summary.tag), \(summary.memberCount) member\(summary.memberCount == 1 ? "" : "s")")
         .frame(maxWidth: .infinity)
         .darkCard()
         .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
@@ -119,6 +121,8 @@ struct GuildView: View {
                     .foregroundColor(.auraTextSecondary)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("War record: \(summary.warRecord.wins) wins, \(summary.warRecord.losses) losses")
         .frame(maxWidth: .infinity)
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -159,6 +163,7 @@ struct GuildView: View {
                                 .fill(summary.role.color.opacity(0.15))
                         )
                 }
+                .accessibilityElement(children: .combine)
                 .darkCard()
             }
             .padding(.horizontal, AuraTheme.Spacing.lg)

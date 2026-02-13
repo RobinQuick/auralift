@@ -178,6 +178,7 @@ struct WorkoutLiveView: View {
                     .font(AuraTheme.Fonts.subheading())
                     .foregroundColor(.cyberOrange)
                 }
+                .accessibilityLabel("Select exercise")
             } else {
                 Text(viewModel.currentExerciseName.uppercased())
                     .font(AuraTheme.Fonts.subheading())
@@ -213,6 +214,8 @@ struct WorkoutLiveView: View {
                 .padding(AuraTheme.Spacing.sm)
                 .background(Color.auraBlack.opacity(0.6))
                 .cornerRadius(AuraTheme.Radius.small)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Combo counter, \(viewModel.comboCount) times")
             }
         }
     }
@@ -254,6 +257,8 @@ struct WorkoutLiveView: View {
             RoundedRectangle(cornerRadius: AuraTheme.Radius.small)
                 .stroke(velocityColor.opacity(0.5), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Velocity, \(String(format: "%.2f", liveVelocity)) meters per second")
     }
 
     private var liveVelocity: Double {
@@ -295,6 +300,8 @@ struct WorkoutLiveView: View {
             RoundedRectangle(cornerRadius: AuraTheme.Radius.small)
                 .stroke(formScoreColor.opacity(0.5), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Form score, \(Int(viewModel.currentFormScore)) percent")
     }
 
     private var formScoreColor: Color {
@@ -318,6 +325,8 @@ struct WorkoutLiveView: View {
         .padding(AuraTheme.Spacing.md)
         .background(Color.auraBlack.opacity(0.6))
         .cornerRadius(AuraTheme.Radius.medium)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Rep counter, \(viewModel.repCount) reps")
     }
 
     // MARK: - Feedback Banners
@@ -367,6 +376,8 @@ struct WorkoutLiveView: View {
                 .stroke(color.opacity(0.4), lineWidth: 0.5)
         )
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Alert: \(message)")
     }
 
     private func issueBannerColor(_ severity: FormIssue.IssueSeverity) -> Color {
@@ -394,6 +405,7 @@ struct WorkoutLiveView: View {
                             .foregroundColor(.auraTextPrimary)
                             .keyboardType(.decimalPad)
                             .frame(width: 60)
+                            .accessibilityLabel("Weight in kilograms")
                             .onChange(of: weightText) { _, newValue in
                                 if let weight = Double(newValue) {
                                     viewModel.setWeight(weight)
@@ -560,6 +572,8 @@ struct WorkoutLiveView: View {
                                 .foregroundColor(set.rpe >= 9 ? .neonRed : set.rpe >= 8 ? .cyberOrange : .auraTextSecondary)
                         }
                         .darkCard()
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Set \(set.setNumber), \(set.reps) reps at \(String(format: "%.0f", set.weightKg)) kg, form \(Int(set.averageFormScore)) percent, RPE \(String(format: "%.0f", set.rpe))")
                         .padding(.horizontal, AuraTheme.Spacing.lg)
                     }
                 }
@@ -601,6 +615,8 @@ struct WorkoutLiveView: View {
             .background(bannerColor.opacity(0.15))
             .cornerRadius(AuraTheme.Radius.small)
             .padding(.top, 60)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(bannerText)
 
             Spacer()
         }
@@ -618,6 +634,8 @@ struct WorkoutLiveView: View {
         }
         .frame(maxWidth: .infinity)
         .darkCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title), \(value)")
     }
 }
 

@@ -32,6 +32,7 @@ struct NutritionDashboardView: View {
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, AuraTheme.Spacing.lg)
+                .accessibilityLabel("Nutrition view selector")
 
                 // MARK: - Content
                 switch selectedSegment {
@@ -98,6 +99,7 @@ struct NutritionDashboardView: View {
                         )
                         .cornerRadius(AuraTheme.Radius.pill)
                 }
+                .accessibilityLabel("\(goal.rawValue) goal\(viewModel.currentGoal == goal ? ", selected" : "")")
             }
         }
         .padding(.horizontal, AuraTheme.Spacing.lg)
@@ -171,6 +173,8 @@ struct NutritionDashboardView: View {
         .aureaCard()
         .aureaGlow(color: .aureaPrimary, radius: AuraTheme.Shadows.subtleGlowRadius)
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Adaptive metabolism: TDEE \(Int(viewModel.targetCalories)) kilocalories, recalculated Monday")
     }
 
     // MARK: - Calorie Ring
@@ -201,6 +205,8 @@ struct NutritionDashboardView: View {
                     .foregroundColor(.auraTextSecondary)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Calories: \(Int(viewModel.actualCalories)) of \(Int(viewModel.targetCalories)) kilocalories")
     }
 
     // MARK: - Macro Rings
@@ -262,6 +268,8 @@ struct NutritionDashboardView: View {
                 .foregroundColor(color)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(Int(current)) of \(Int(target)) \(unit)")
     }
 
     // MARK: - Water Section
@@ -299,6 +307,8 @@ struct NutritionDashboardView: View {
             }
             .darkCard()
             .padding(.horizontal, AuraTheme.Spacing.lg)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Hydration: \(String(format: "%.1f", viewModel.actualWater)) of \(String(format: "%.1f", viewModel.targetWater)) liters")
         }
     }
 
@@ -352,6 +362,8 @@ struct NutritionDashboardView: View {
         .darkCard()
         .neonGlow(color: .neonGold, radius: AuraTheme.Shadows.subtleGlowRadius)
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Sculpt protocol: \(plan.goal.rawValue), \(plan.summary)")
     }
 
     // MARK: - Carb Cycling Card
@@ -375,6 +387,8 @@ struct NutritionDashboardView: View {
         }
         .darkCard()
         .padding(.horizontal, AuraTheme.Spacing.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Carb cycling: current day type is \(viewModel.trainingDay.rawValue)")
     }
 
     private func carbDayBadge(type: TrainingDayType, isActive: Bool) -> some View {
